@@ -1,2 +1,2 @@
 # charette
-Filter your roms
+Filter your no-intro roms
