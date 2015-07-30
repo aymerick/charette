@@ -80,11 +80,12 @@ func (h *Harvester) Run() error {
 
 // filter keeps only wanted roms
 func (h *Harvester) filter() error {
+	// computes roms to discard
 	for _, game := range h.Games {
-		// computes best game version
-		if r := game.BestRom(h.Options.Regions); r != nil {
-			// @todo Move it !
-			// fmt.Printf("Best ROM: %v\n", r.Filename)
+		roms := game.GarbageRoms(h.Options.Regions)
+		for _, r := range roms {
+			// @todo Move it to output
+			fmt.Printf("[%v] TRASHING: %v\n", game.BestRom(h.Options.Regions), r)
 		}
 	}
 
@@ -111,15 +112,10 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 
 	if h.Games[r.Name] == nil {
 		// it's a new game
-		g := rom.NewGame()
-		g.AddRom(r)
-
-		h.Games[r.Name] = g
-
-		if h.Debug {
-			log.Printf("New game found: %s", g)
-		}
+		h.Games[r.Name] = rom.NewGame()
 	}
+
+	h.Games[r.Name].AddRom(r)
 
 	if h.Debug {
 		log.Printf("New rom found: %s", r)

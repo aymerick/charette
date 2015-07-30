@@ -36,6 +36,17 @@ func (g *Game) BestRom(regions []string) *Rom {
 	return g.Roms[0]
 }
 
+// BestRoom returns roms that can be discarded
+func (g *Game) GarbageRoms(regions []string) []*Rom {
+	g.sortRoms(regions)
+
+	if len(g.Roms) > 1 {
+		return g.Roms[1:len(g.Roms)]
+	}
+
+	return []*Rom{}
+}
+
 func (g *Game) sortRoms(regions []string) {
 	sort.Sort(g.NewRomsSort(regions))
 }
@@ -72,7 +83,6 @@ func (gs GameRomsSort) Less(i, j int) bool {
 	r1 := gs.Game.Roms[i]
 	r2 := gs.Game.Roms[j]
 
-	// regions
 	b1 := r1.BestRegionIndex(gs.Regions)
 	b2 := r2.BestRegionIndex(gs.Regions)
 
@@ -80,12 +90,12 @@ func (gs GameRomsSort) Less(i, j int) bool {
 		return b1 < b2
 	}
 
-	// alternative tag loose
+	// tag - any alternative tag is a looser
 	if r1.HaveAltTag() != r2.HaveAltTag() {
 		return r2.HaveAltTag()
 	}
 
-	// version - latest version is the best
+	// version - latest version is the winner
 	if r1.Version != r2.Version {
 		return r1.Version > r2.Version
 	}

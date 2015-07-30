@@ -129,10 +129,10 @@ func (r *Rom) Fill() error {
 
 // BestRegionIndex computes the lowest index in given regions list for that rom
 func (r *Rom) BestRegionIndex(regions []string) int {
-	result := len(regions) - 1
+	result := len(regions)
 
 	for _, region := range r.Regions {
-		if i := indexOf(regions, region); i < result {
+		if i := indexOf(regions, region); (i != -1) && (i < result) {
 			result = i
 		}
 	}
