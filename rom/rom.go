@@ -15,10 +15,14 @@ const (
 
 // regexps
 var rFilename = regexp.MustCompile(`^([^\(]*)\(([^\(]*)\)`)
-var rProto = regexp.MustCompile(`\(Proto\)`)
-var rBeta = regexp.MustCompile(`\(Beta(.*)\)`)
-var rSample = regexp.MustCompile(`\(Sample\)`)
 var rVersion = regexp.MustCompile(`\(Rev(.*)\)|\(v\d.*\)`)
+
+var rProto = regexp.MustCompile(`\(Proto\)`)
+var rBeta = regexp.MustCompile(`\(Beta([^\(]*)\)`)
+var rSample = regexp.MustCompile(`\(Sample\)`)
+var rDemo = regexp.MustCompile(`\(([^\(]*)Demo([^\(]*)\)`)
+var rPirate = regexp.MustCompile(`\(([^\(]*)Pirate([^\(]*)\)`)
+var rPromo = regexp.MustCompile(`\(([^\(]*)Promo([^\(]*)\)`)
 
 // Rom represents a game version
 type Rom struct {
@@ -31,6 +35,9 @@ type Rom struct {
 	Beta   bool
 	Bios   bool
 	Sample bool
+	Demo   bool
+	Pirate bool
+	Promo  bool
 }
 
 // New instanciates a new Rom
@@ -61,6 +68,9 @@ func (r *Rom) Fill() error {
 	r.Beta = rBeta.MatchString(r.Filename)
 	r.Bios = strings.HasPrefix(r.Filename, BIOS_PREFIX)
 	r.Sample = rSample.MatchString(r.Filename)
+	r.Demo = rDemo.MatchString(r.Filename)
+	r.Pirate = rPirate.MatchString(r.Filename)
+	r.Promo = rPromo.MatchString(r.Filename)
 
 	return nil
 }

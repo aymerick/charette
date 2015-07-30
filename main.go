@@ -24,6 +24,15 @@ var (
 	fDir     string
 	fRegions string
 	fMame    bool // @todo Handle that
+	fSane    bool
+
+	fNoProto  bool
+	fNoBeta   bool
+	fNoSample bool
+	fNoDemo   bool
+	fNoPirate bool
+	fNoPromo  bool
+
 	fDebug   bool
 	fVersion bool
 )
@@ -36,6 +45,15 @@ func init() {
 	flag.StringVar(&fDir, "dir", "", "Roms absolute directory (default is current working dir)")
 	flag.StringVar(&fRegions, "regions", DEFAULT_REGIONS, fmt.Sprintf("Preferred regions (default: %s)", DEFAULT_REGIONS))
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
+	flag.BoolVar(&fSane, "sane", false, "Activates flags: no-proto, no-beta, no-sample, no-demo, no-pirate, no-promo")
+
+	flag.BoolVar(&fNoProto, "no-proto", false, "Skip roms tagged with 'Promo'")
+	flag.BoolVar(&fNoBeta, "no-beta", false, "Skip roms tagged with 'Beta'")
+	flag.BoolVar(&fNoSample, "no-sample", false, "Skip roms tagged with 'Sample'")
+	flag.BoolVar(&fNoDemo, "no-demo", false, "Skip roms tagged with 'Demo'")
+	flag.BoolVar(&fNoPirate, "no-pirate", false, "Skip roms tagged with 'Pirate'")
+	flag.BoolVar(&fNoPromo, "no-promo", false, "Skip roms tagged with 'Promo'")
+
 	flag.BoolVar(&fDebug, "debug", false, "Activate debug logs")
 	flag.BoolVar(&fVersion, "version", false, "Display charette version")
 }
@@ -49,6 +67,15 @@ func main() {
 	if fVersion {
 		fmt.Println(VERSION)
 		os.Exit(0)
+	}
+
+	if fSane {
+		fNoProto = true
+		fNoBeta = true
+		fNoSample = true
+		fNoDemo = true
+		fNoPirate = true
+		fNoPromo = true
 	}
 
 	if fDir == "" {
@@ -68,6 +95,14 @@ func main() {
 	options := harvester.NewOptions()
 
 	options.Regions = utils.ExtractRegions(fRegions)
+
+	options.NoProto = fNoProto
+	options.NoBeta = fNoBeta
+	options.NoSample = fNoSample
+	options.NoDemo = fNoDemo
+	options.NoPirate = fNoPirate
+	options.NoPromo = fNoPromo
+
 	options.Mame = fMame
 	options.Debug = fDebug
 

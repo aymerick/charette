@@ -3,8 +3,16 @@ package harvester
 // Options holds the settings for Harvester
 type Options struct {
 	Regions []string
-	Mame    bool
-	Debug   bool
+
+	NoProto  bool
+	NoBeta   bool
+	NoSample bool
+	NoDemo   bool
+	NoPirate bool
+	NoPromo  bool
+
+	Mame  bool
+	Debug bool
 }
 
 // NewOptions instanciates a new Options

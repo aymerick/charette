@@ -12,76 +12,107 @@ var fillTests = []struct {
 	beta   bool
 	bios   bool
 	sample bool
+	demo   bool
+	pirate bool
+	promo  bool
 }{
 	{
 		"[BIOS] CX4 (World).zip",
 		"[BIOS] CX4",
 		[]string{"World"},
 		"",
-		false, false, true, false,
+		false, false, true, false, false, false, false,
 	},
 	{
 		"Bubsy in Claws Encounters of the Furred Kind (USA) (Beta 1).zip",
 		"Bubsy in Claws Encounters of the Furred Kind",
 		[]string{"USA"},
 		"Beta 1",
-		false, true, false, false,
+		false, true, false, false, false, false, false,
 	},
 	{
 		"Aretha II - Ariel no Fushigi na Tabi (Japan) (Beta 2).zip",
 		"Aretha II - Ariel no Fushigi na Tabi",
 		[]string{"Japan"},
 		"Beta 2",
-		false, true, false, false,
+		false, true, false, false, false, false, false,
 	},
 	{
 		"BS-X - Sore wa Namae o Nusumareta Machi no Monogatari (Japan) (Rev 1)",
 		"BS-X - Sore wa Namae o Nusumareta Machi no Monogatari",
 		[]string{"Japan"},
 		"Rev 1",
-		false, false, false, false,
+		false, false, false, false, false, false, false,
 	},
 	{
 		"Capcom's Soccer Shootout (USA) (Beta)",
 		"Capcom's Soccer Shootout",
 		[]string{"USA"},
 		"Beta",
-		false, true, false, false,
+		false, true, false, false, false, false, false,
 	},
 	{
 		"Captain Novolin (USA) (En,Fr,Es)",
 		"Captain Novolin",
 		[]string{"USA"},
 		"",
-		false, false, false, false,
+		false, false, false, false, false, false, false,
 	},
 	{
 		"Adventures of Dr. Franken, The (Europe) (En,Fr,De,Es,It,Nl,Sv)",
 		"Adventures of Dr. Franken, The",
 		[]string{"Europe"},
 		"",
-		false, false, false, false,
+		false, false, false, false, false, false, false,
 	},
 	{
 		"Axelay (USA) (Sample).zip",
 		"Axelay",
 		[]string{"USA"},
 		"",
-		false, false, false, true,
+		false, false, false, true, false, false, false,
 	},
 	{
 		"Gain Ground (World) (Rev A).zip",
 		"Gain Ground",
 		[]string{"World"},
 		"Rev A",
-		false, false, false, false,
+		false, false, false, false, false, false, false,
 	},
 	{
 		"Mortal Kombat (World) (v1.1).zip",
 		"Mortal Kombat",
 		[]string{"World"},
 		"v1.1",
-		false, false, false, false,
+		false, false, false, false, false, false, false,
+	},
+	{
+		"Prospector - In the Mazes of Xor + StarRay (Europe) (Demo).zip",
+		"Prospector - In the Mazes of Xor + StarRay",
+		[]string{"Europe"},
+		"",
+		false, false, false, false, true, false, false,
+	},
+	{
+		"Bill's Tomato Game (Europe) (Demo, Promo) (Bundled with Cytron).zip",
+		"Bill's Tomato Game",
+		[]string{"Europe"},
+		"",
+		false, false, false, false, true, false, true,
+	},
+	{
+		"Lemmings 2 - The Tribes (Europe) (Demo) (Promo - The Future Entertainment Show).zip",
+		"Lemmings 2 - The Tribes",
+		[]string{"Europe"},
+		"",
+		false, false, false, false, true, false, true,
+	},
+	{
+		"NBA Showdown '94 (USA) (Unl) (Pirate).zip",
+		"NBA Showdown '94",
+		[]string{"USA"},
+		"",
+		false, false, false, false, false, true, false,
 	},
 }
 
@@ -90,7 +121,6 @@ var fillTests = []struct {
 //   Micro Machines (USA, Europe) (Alt 1).zip
 //   Micro Machines (USA, Europe) (MDMM ACD3).zip
 //   Mike Ditka Power Football (USA, Europe) (Unl).zip
-//   NBA Showdown '94 (USA) (Unl) (Pirate).zip
 //
 
 func TestFill(t *testing.T) {
@@ -126,6 +156,18 @@ func TestFill(t *testing.T) {
 
 		if rom.Sample != test.sample {
 			t.Errorf("Sample extraction failed, got '%v' but expected '%v': %s", rom.Sample, test.sample, test.fileName)
+		}
+
+		if rom.Demo != test.demo {
+			t.Errorf("Demo extraction failed, got '%v' but expected '%v': %s", rom.Demo, test.demo, test.fileName)
+		}
+
+		if rom.Pirate != test.pirate {
+			t.Errorf("Pirate extraction failed, got '%v' but expected '%v': %s", rom.Pirate, test.pirate, test.fileName)
+		}
+
+		if rom.Promo != test.promo {
+			t.Errorf("Promo extraction failed, got '%v' but expected '%v': %s", rom.Promo, test.promo, test.fileName)
 		}
 	}
 }

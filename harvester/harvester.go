@@ -121,8 +121,32 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 
 // skip returns true if given rom must be skiped, with an explanation message
 func (h *Harvester) skip(r *rom.Rom) (bool, string) {
+	if r.Proto && h.Options.NoProto {
+		return true, "Ignore proto"
+	}
+
+	if r.Beta && h.Options.NoBeta {
+		return true, "Ignore beta"
+	}
+
 	if r.Bios {
 		return true, "Ignore bios"
+	}
+
+	if r.Sample && h.Options.NoSample {
+		return true, "Ignore sample"
+	}
+
+	if r.Demo && h.Options.NoDemo {
+		return true, "Ignore demo"
+	}
+
+	if r.Pirate && h.Options.NoPirate {
+		return true, "Ignore pirate"
+	}
+
+	if r.Promo && h.Options.NoPromo {
+		return true, "Ignore promo"
 	}
 
 	return false, ""
