@@ -14,6 +14,7 @@ type Options struct {
 	Mame    bool
 	Verbose bool
 	Debug   bool
+	Noop    bool
 }
 
 // NewOptions instanciates a new Options

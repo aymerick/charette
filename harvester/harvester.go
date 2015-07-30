@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/aymerick/charette/rom"
@@ -25,17 +26,24 @@ type Harvester struct {
 	// roms directory
 	Dir string
 
+	// garbage directory
+	Garbage string
+
 	Options *Options
 	Debug   bool
 
 	// found games
 	Games map[string]*rom.Game
+
+	// skipped files
+	Skipped []string
 }
 
 // New instanciates a new Harvester
-func New(dir string, options *Options) *Harvester {
+func New(dir string, garbage string, options *Options) *Harvester {
 	return &Harvester{
 		Dir:     dir,
+		Garbage: garbage,
 		Options: options,
 		Debug:   options.Debug,
 		Games:   map[string]*rom.Game{},
@@ -54,6 +62,8 @@ func (h *Harvester) Run() error {
 		return err
 	}
 
+	nb := 0
+
 	for _, info := range infos {
 		if info.IsDir() {
 			// Skip directories
@@ -68,36 +78,77 @@ func (h *Harvester) Run() error {
 		if err := h.processFile(info); err != nil {
 			fmt.Printf("ERR: %v\n", err)
 		}
+
+		nb += 1
 	}
 
-	// filter roms
-	if err := h.filter(); err != nil {
+	fmt.Printf("Processed %v files\n", nb)
+	fmt.Printf("Skipped %v files\n", len(h.Skipped))
+	fmt.Printf("Found %v games\n", len(h.Games))
+
+	// discard roms
+	if err := h.discard(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// filter keeps only wanted roms
-func (h *Harvester) filter() error {
-	// computes roms to discard
+// discard moves skiped and unwanted roms to garbage
+func (h *Harvester) discard() error {
+	if _, err := os.Stat(h.Garbage); os.IsNotExist(err) {
+		// create garbage directory
+		if err := os.MkdirAll(h.Garbage, 0777); err != nil {
+			return err
+		}
+	}
+
+	nb := 0
+
+	// discard skipped files
+	for _, fileName := range h.Skipped {
+		h.moveFile(fileName)
+	}
+
+	// discard unwanted roms
 	for _, game := range h.Games {
 		roms := game.GarbageRoms(h.Options.Regions)
 		for _, r := range roms {
-			// @todo Move it to output
-			fmt.Printf("[%v] TRASHING: %v\n", game.BestRom(h.Options.Regions), r)
+			if err := h.moveFile(r.Filename); err != nil {
+				fmt.Printf("ERR: %v\n", err)
+			} else {
+				nb += 1
+			}
 		}
+	}
+
+	if nb == 0 {
+		fmt.Printf("No file moved\n")
+	} else {
+		fmt.Printf("Moved %v files to %v\n", nb, h.Garbage)
 	}
 
 	return nil
 }
 
-// processFile handles a new file
-func (h *Harvester) processFile(info os.FileInfo) error {
-	if h.Debug {
-		log.Printf("Processing: %s", info.Name())
+func (h *Harvester) moveFile(fileName string) error {
+	oldPath := path.Join(h.Dir, fileName)
+	newPath := path.Join(h.Garbage, fileName)
+
+	if h.Options.Debug {
+		log.Printf("MOVING %s => %s", oldPath, newPath)
 	}
 
+	if h.Options.Noop {
+		// NOOP
+		return nil
+	}
+
+	return os.Rename(oldPath, newPath)
+}
+
+// processFile handles a new file
+func (h *Harvester) processFile(info os.FileInfo) error {
 	r := rom.New(info.Name())
 	if err := r.Fill(); err != nil {
 		return err
@@ -105,8 +156,11 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 
 	if skip, msg := h.skip(r); skip {
 		if h.Options.Verbose {
-			fmt.Printf("Skipped '%s': %s\n", r, msg)
+			fmt.Printf("Skipped '%s': %s\n", r.Filename, msg)
 		}
+
+		h.Skipped = append(h.Skipped, r.Filename)
+
 		return nil
 	}
 
@@ -116,10 +170,6 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 	}
 
 	h.Games[r.Name].AddRom(r)
-
-	if h.Debug {
-		log.Printf("New rom found: %s", r)
-	}
 
 	return nil
 }

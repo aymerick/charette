@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 
 	"github.com/aymerick/charette/core"
 	"github.com/aymerick/charette/harvester"
@@ -14,6 +15,7 @@ const (
 	VERSION = "0.0.1"
 
 	DEFAULT_REGIONS = "France,Europe,World,USA,Japan"
+	DEFAULT_GARBAGE = "_GARBAGE_"
 )
 
 var (
@@ -22,6 +24,9 @@ var (
 
 	// flags
 	fDir     string
+	fGarbage string
+	fNoop    bool
+
 	fRegions string
 	fMame    bool // @todo Handle that
 	fSane    bool
@@ -42,8 +47,16 @@ func init() {
 	// no-intro file extensions
 	extensions = []string{".zip", ".7z"}
 
+	curDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
 	// flags
-	flag.StringVar(&fDir, "dir", "", "Roms absolute directory (default is current working dir)")
+	flag.StringVar(&fDir, "dir", curDir, "Roms absolute directory")
+	flag.StringVar(&fGarbage, "garbage", "", "Garbage absolute directory (default is '<dir>/_GARBAGE_'")
+	flag.BoolVar(&fNoop, "noop", false, "Noop mode: do nothing, usefull for debugging")
+
 	flag.StringVar(&fRegions, "regions", DEFAULT_REGIONS, "Preferred regions")
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
 	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto, -no-beta, -no-sample, -no-demo, -no-pirate, -no-promo")
@@ -87,6 +100,10 @@ func main() {
 		}
 	}
 
+	if fGarbage == "" {
+		fGarbage = path.Join(fDir, DEFAULT_GARBAGE)
+	}
+
 	if fDebug {
 		log.Printf("charette v%s", VERSION)
 		log.Printf("   dir: %s", fDir)
@@ -108,9 +125,10 @@ func main() {
 	options.Mame = fMame
 	options.Verbose = fVerbose
 	options.Debug = fDebug
+	options.Noop = fNoop
 
 	// run harvester
-	h := harvester.New(fDir, options)
+	h := harvester.New(fDir, fGarbage, options)
 	if err := h.Run(); err != nil {
 		panic(err)
 	}

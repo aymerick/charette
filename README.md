@@ -2,7 +2,13 @@
 
 Filter your no-intro roms
 
-Allowed regions:
+Usage:
+
+    $ go run main.go -dir="/PATH/TO/snes/" -sane
+
+All unwanted roms are moved to /PATH/TO/snes/_GARBAGE_/ directory.
+
+## Allowed regions
 
     Asia
     Australia
