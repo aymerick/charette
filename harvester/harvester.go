@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/aymerick/charette/rom"
 )
@@ -122,7 +121,7 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 
 // skip returns true if given rom must be skiped, with an explanation message
 func (h *Harvester) skip(r *rom.Rom) (bool, string) {
-	if strings.HasPrefix(r.Name, "[BIOS]") {
+	if r.Bios {
 		return true, "Ignore bios"
 	}
 
