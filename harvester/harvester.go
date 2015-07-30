@@ -17,8 +17,27 @@ var (
 )
 
 func init() {
-	// no-intro file extensions
-	extensions = []string{".zip", ".7z"}
+	// no-intro files extensions
+	extensions = []string{
+		".zip", ".7z", // compressed
+		".a26",        // atari2600
+		".fds",        // famicomdisksystem
+		".gb", ".gbc", // gameboy
+		".gba",        // gameboy advance
+		".gg",         // gamegear
+		".ms",         // mastersystem
+		".gen", ".md", // megadrive
+		".rom", ".msx1", ".msx2", // msx
+		".nes",                 // nes
+		".n64",                 // nintendo64
+		".pce",                 // pcengine
+		".iso", ".img", ".bin", // playstation
+		".32x",         // sega32x
+		".cue",         // segacd
+		".sg",          // sg1000
+		".smc", ".sfc", // snes
+		".vb", // virtual boy
+	}
 }
 
 // Harvester collects wanted roms from given directory
