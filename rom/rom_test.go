@@ -3,66 +3,96 @@ package rom
 import "testing"
 
 var fillTests = []struct {
-	fileName    string
-	name        string
-	regions     []string
-	revision    int
+	fileName string
+	name     string
+	regions  []string
+	version  string
+
 	proto       bool
 	beta        bool
 	betaVersion int
 	bios        bool
+	sample      bool
 }{
 	{
 		"[BIOS] CX4 (World).zip",
 		"[BIOS] CX4",
 		[]string{"World"},
-		0,
-		false,
-		false,
-		0,
-		true,
+		"",
+		false, false, 0, true, false,
 	},
 	{
 		"Bubsy in Claws Encounters of the Furred Kind (USA) (Beta 1).zip",
 		"Bubsy in Claws Encounters of the Furred Kind",
 		[]string{"USA"},
-		0,
-		false,
-		true,
-		1,
-		false,
+		"",
+		false, true, 1, false, false,
+	},
+	{
+		"Aretha II - Ariel no Fushigi na Tabi (Japan) (Beta 2).zip",
+		"Aretha II - Ariel no Fushigi na Tabi",
+		[]string{"Japan"},
+		"",
+		false, true, 2, false, false,
 	},
 	{
 		"BS-X - Sore wa Namae o Nusumareta Machi no Monogatari (Japan) (Rev 1)",
 		"BS-X - Sore wa Namae o Nusumareta Machi no Monogatari",
 		[]string{"Japan"},
-		1,
-		false,
-		false,
-		0,
-		false,
+		"Rev 1",
+		false, false, 0, false, false,
 	},
 	{
 		"Capcom's Soccer Shootout (USA) (Beta)",
 		"Capcom's Soccer Shootout",
 		[]string{"USA"},
-		0,
-		false,
-		true,
-		0,
-		false,
+		"",
+		false, true, 0, false, false,
 	},
 	{
 		"Captain Novolin (USA) (En,Fr,Es)",
 		"Captain Novolin",
 		[]string{"USA"},
-		0,
-		false,
-		false,
-		0,
-		false,
+		"",
+		false, false, 0, false, false,
+	},
+	{
+		"Adventures of Dr. Franken, The (Europe) (En,Fr,De,Es,It,Nl,Sv)",
+		"Adventures of Dr. Franken, The",
+		[]string{"Europe"},
+		"",
+		false, false, 0, false, false,
+	},
+	{
+		"Axelay (USA) (Sample).zip",
+		"Axelay",
+		[]string{"USA"},
+		"",
+		false, false, 0, false, true,
+	},
+	{
+		"Gain Ground (World) (Rev A).zip",
+		"Gain Ground",
+		[]string{"World"},
+		"Rev A",
+		false, false, 0, false, false,
+	},
+	{
+		"Mortal Kombat (World) (v1.1).zip",
+		"Mortal Kombat",
+		[]string{"World"},
+		"v1.1",
+		false, false, 0, false, false,
 	},
 }
+
+// @todo
+//
+//   Micro Machines (USA, Europe) (Alt 1).zip
+//   Micro Machines (USA, Europe) (MDMM ACD3).zip
+//   Mike Ditka Power Football (USA, Europe) (Unl).zip
+//   NBA Showdown '94 (USA) (Unl) (Pirate).zip
+//
 
 func TestFill(t *testing.T) {
 	for _, test := range fillTests {
@@ -79,8 +109,8 @@ func TestFill(t *testing.T) {
 			t.Errorf("Regions extraction failed, got '%v' but expected '%v': %s", rom.Regions, test.regions, test.fileName)
 		}
 
-		if rom.Revision != test.revision {
-			t.Errorf("Revision extraction failed, got '%v' but expected '%v': %s", rom.Revision, test.revision, test.fileName)
+		if rom.Version != test.version {
+			t.Errorf("Version extraction failed, got '%v' but expected '%v': %s", rom.Version, test.version, test.fileName)
 		}
 
 		if rom.Proto != test.proto {
@@ -97,6 +127,10 @@ func TestFill(t *testing.T) {
 
 		if rom.Bios != test.bios {
 			t.Errorf("Bios extraction failed, got '%v' but expected '%v': %s", rom.Bios, test.bios, test.fileName)
+		}
+
+		if rom.Sample != test.sample {
+			t.Errorf("Sample extraction failed, got '%v' but expected '%v': %s", rom.Sample, test.sample, test.fileName)
 		}
 	}
 }

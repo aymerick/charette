@@ -13,21 +13,24 @@ const (
 	BIOS_PREFIX = "[BIOS]"
 )
 
+// regexps
 var rFilename = regexp.MustCompile(`^([^\(]*)\(([^\(]*)\)`)
 var rProto = regexp.MustCompile(`\(Proto\)`)
 var rBeta = regexp.MustCompile(`\(Beta\)`)
+var rSample = regexp.MustCompile(`\(Sample\)`)
 
 // Rom represents a game version
 type Rom struct {
 	Filename string
 	Name     string
 	Regions  []string
-	Revision int
+	Version  string
 
 	Proto       bool
 	Beta        bool
 	BetaVersion int
 	Bios        bool
+	Sample      bool
 }
 
 // New instanciates a new Rom
@@ -52,12 +55,13 @@ func (r *Rom) Fill() error {
 
 	r.Name = strings.TrimSpace(match[1])
 	r.Regions = utils.ExtractRegions(match[2])
-	// @todo r.Revision
+	// @todo r.Version
 
 	r.Proto = rProto.MatchString(r.Filename)
 	r.Beta = rBeta.MatchString(r.Filename)
 	// @todo r.BetaVersion
 	r.Bios = strings.HasPrefix(r.Filename, BIOS_PREFIX)
+	r.Sample = rSample.MatchString(r.Filename)
 
 	return nil
 }
