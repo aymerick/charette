@@ -1,20 +1,41 @@
 package rom
 
+import (
+	"errors"
+	"fmt"
+	"regexp"
+	"strings"
+
+	"github.com/aymerick/charette/utils"
+)
+
+var rFilename = regexp.MustCompile(`^([^\(]*)\(([^\(]*)\)`)
+
 type Rom struct {
+	Filename string
 	Name     string
-	Versions []*Version
+	Regions  []string
 }
 
-func New(name string) *Rom {
+func New(filename string) *Rom {
 	return &Rom{
-		Name: name,
+		Filename: filename,
 	}
 }
 
 func (r *Rom) String() string {
-	return r.Name
+	return fmt.Sprintf("%s %v", r.Name, r.Regions)
 }
 
-func (r *Rom) AddVersion(version *Version) {
-	r.Versions = append(r.Versions, version)
+func (r *Rom) Fill() error {
+	// extract infos from filename
+	match := rFilename.FindStringSubmatch(r.Filename)
+	if len(match) != 3 {
+		return errors.New("Invalid filename: " + r.Filename)
+	}
+
+	r.Name = strings.TrimSpace(match[1])
+	r.Regions = utils.ExtractRegions(match[2])
+
+	return nil
 }

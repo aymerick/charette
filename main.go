@@ -7,10 +7,13 @@ import (
 	"os"
 
 	"github.com/aymerick/charette/harvester"
+	"github.com/aymerick/charette/utils"
 )
 
 const (
 	VERSION = "0.0.1"
+
+	DEFAULT_REGIONS = "France,Europe,World,USA,Japan"
 )
 
 var (
@@ -19,6 +22,7 @@ var (
 
 	// flags
 	fDir     string
+	fRegions string
 	fMame    bool // @todo Handle that
 	fDebug   bool
 	fVersion bool
@@ -30,6 +34,7 @@ func init() {
 
 	// flags
 	flag.StringVar(&fDir, "dir", "", "Roms absolute directory (default is current working dir)")
+	flag.StringVar(&fRegions, "regions", DEFAULT_REGIONS, fmt.Sprintf("Preferred regions (default: %s)", DEFAULT_REGIONS))
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
 	flag.BoolVar(&fDebug, "debug", false, "Activate debug logs")
 	flag.BoolVar(&fVersion, "version", false, "Display charette version")
@@ -40,6 +45,7 @@ func main() {
 
 	flag.Parse()
 
+	// check flags
 	if fVersion {
 		fmt.Println(VERSION)
 		os.Exit(0)
@@ -60,6 +66,8 @@ func main() {
 
 	// computes options
 	options := harvester.NewOptions()
+
+	options.Regions = utils.ExtractRegions(fRegions)
 	options.Mame = fMame
 	options.Debug = fDebug
 

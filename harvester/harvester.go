@@ -28,8 +28,8 @@ type Harvester struct {
 	Options *Options
 	Debug   bool
 
-	// found roms
-	Roms map[string]*rom.Rom
+	// found games
+	Games map[string]*rom.Game
 }
 
 func New(dir string, options *Options) *Harvester {
@@ -37,7 +37,7 @@ func New(dir string, options *Options) *Harvester {
 		Dir:     dir,
 		Options: options,
 		Debug:   options.Debug,
-		Roms:    map[string]*rom.Rom{},
+		Games:   map[string]*rom.Game{},
 	}
 }
 
@@ -67,7 +67,7 @@ func (h *Harvester) Run() error {
 		}
 	}
 
-	// @todo Filter roms (options: extract)
+	// @todo Filter roms
 
 	return nil
 }
@@ -77,38 +77,38 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 		log.Printf("Processing: %s", info.Name())
 	}
 
-	v := rom.NewVersion(info.Name())
-	if err := v.Fill(); err != nil {
+	r := rom.New(info.Name())
+	if err := r.Fill(); err != nil {
 		return err
 	}
 
-	if skip, msg := h.skip(v); skip {
-		fmt.Printf("Skipped '%s': %s\n", v, msg)
+	if skip, msg := h.skip(r); skip {
+		fmt.Printf("Skipped '%s': %s\n", r, msg)
 		return nil
 	}
 
-	if h.Roms[v.Name] == nil {
-		// it's a new rom
-		r := rom.New(v.Name)
-		r.AddVersion(v)
+	if h.Games[r.Name] == nil {
+		// it's a new game
+		g := rom.NewGame(r.Name)
+		g.AddRom(r)
 
-		h.Roms[v.Name] = r
+		h.Games[r.Name] = g
 
 		if h.Debug {
-			log.Printf("New rom found: %s", r)
+			log.Printf("New game found: %s", g)
 		}
 	}
 
 	if h.Debug {
-		log.Printf("New version found: %s", v)
+		log.Printf("New rom found: %s", r)
 	}
 
 	return nil
 }
 
-func (h *Harvester) skip(v *rom.Version) (bool, string) {
-	if strings.HasPrefix(v.Name, "[BIOS]") {
-		return true, "Ignore bios file"
+func (h *Harvester) skip(r *rom.Rom) (bool, string) {
+	if strings.HasPrefix(r.Name, "[BIOS]") {
+		return true, "Ignore bios"
 	}
 
 	return false, ""
