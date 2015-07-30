@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/aymerick/charette/utils"
+	"github.com/aymerick/charette/core"
 )
 
 const (
@@ -113,7 +113,7 @@ func (r *Rom) Fill() error {
 	}
 
 	r.Name = strings.TrimSpace(match[1])
-	r.Regions = utils.ExtractRegions(match[2])
+	r.Regions = core.ExtractRegions(match[2])
 	r.Version = r.extractVersion()
 
 	r.Proto = rProto.MatchString(r.Filename)

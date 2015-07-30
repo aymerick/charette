@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/aymerick/charette/core"
 	"github.com/aymerick/charette/harvester"
-	"github.com/aymerick/charette/utils"
 )
 
 const (
@@ -96,7 +96,7 @@ func main() {
 	// computes options
 	options := harvester.NewOptions()
 
-	options.Regions = utils.ExtractRegions(fRegions)
+	options.Regions = core.ExtractRegions(fRegions)
 
 	options.NoProto = fNoProto
 	options.NoBeta = fNoBeta

@@ -84,7 +84,7 @@ func (h *Harvester) filter() error {
 		// computes best game version
 		if r := game.BestRom(h.Options.Regions); r != nil {
 			// @todo Move it !
-			fmt.Printf("Best ROM: %v\n", r.Filename)
+			// fmt.Printf("Best ROM: %v\n", r.Filename)
 		}
 	}
 
