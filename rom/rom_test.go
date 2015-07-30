@@ -8,81 +8,80 @@ var fillTests = []struct {
 	regions  []string
 	version  string
 
-	proto       bool
-	beta        bool
-	betaVersion int
-	bios        bool
-	sample      bool
+	proto  bool
+	beta   bool
+	bios   bool
+	sample bool
 }{
 	{
 		"[BIOS] CX4 (World).zip",
 		"[BIOS] CX4",
 		[]string{"World"},
 		"",
-		false, false, 0, true, false,
+		false, false, true, false,
 	},
 	{
 		"Bubsy in Claws Encounters of the Furred Kind (USA) (Beta 1).zip",
 		"Bubsy in Claws Encounters of the Furred Kind",
 		[]string{"USA"},
-		"",
-		false, true, 1, false, false,
+		"Beta 1",
+		false, true, false, false,
 	},
 	{
 		"Aretha II - Ariel no Fushigi na Tabi (Japan) (Beta 2).zip",
 		"Aretha II - Ariel no Fushigi na Tabi",
 		[]string{"Japan"},
-		"",
-		false, true, 2, false, false,
+		"Beta 2",
+		false, true, false, false,
 	},
 	{
 		"BS-X - Sore wa Namae o Nusumareta Machi no Monogatari (Japan) (Rev 1)",
 		"BS-X - Sore wa Namae o Nusumareta Machi no Monogatari",
 		[]string{"Japan"},
 		"Rev 1",
-		false, false, 0, false, false,
+		false, false, false, false,
 	},
 	{
 		"Capcom's Soccer Shootout (USA) (Beta)",
 		"Capcom's Soccer Shootout",
 		[]string{"USA"},
-		"",
-		false, true, 0, false, false,
+		"Beta",
+		false, true, false, false,
 	},
 	{
 		"Captain Novolin (USA) (En,Fr,Es)",
 		"Captain Novolin",
 		[]string{"USA"},
 		"",
-		false, false, 0, false, false,
+		false, false, false, false,
 	},
 	{
 		"Adventures of Dr. Franken, The (Europe) (En,Fr,De,Es,It,Nl,Sv)",
 		"Adventures of Dr. Franken, The",
 		[]string{"Europe"},
 		"",
-		false, false, 0, false, false,
+		false, false, false, false,
 	},
 	{
 		"Axelay (USA) (Sample).zip",
 		"Axelay",
 		[]string{"USA"},
 		"",
-		false, false, 0, false, true,
+		false, false, false, true,
 	},
 	{
 		"Gain Ground (World) (Rev A).zip",
 		"Gain Ground",
 		[]string{"World"},
 		"Rev A",
-		false, false, 0, false, false,
+		false, false, false, false,
 	},
 	{
 		"Mortal Kombat (World) (v1.1).zip",
 		"Mortal Kombat",
 		[]string{"World"},
 		"v1.1",
-		false, false, 0, false, false,
+		false, false, false, false,
 	},
 }
 
@@ -119,10 +118,6 @@ func TestFill(t *testing.T) {
 
 		if rom.Beta != test.beta {
 			t.Errorf("Beta extraction failed, got '%v' but expected '%v': %s", rom.Beta, test.beta, test.fileName)
-		}
-
-		if rom.BetaVersion != test.betaVersion {
-			t.Errorf("Beta Version extraction failed, got '%v' but expected '%v': %s", rom.BetaVersion, test.betaVersion, test.fileName)
 		}
 
 		if rom.Bios != test.bios {

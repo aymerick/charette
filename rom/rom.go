@@ -16,8 +16,9 @@ const (
 // regexps
 var rFilename = regexp.MustCompile(`^([^\(]*)\(([^\(]*)\)`)
 var rProto = regexp.MustCompile(`\(Proto\)`)
-var rBeta = regexp.MustCompile(`\(Beta\)`)
+var rBeta = regexp.MustCompile(`\(Beta(.*)\)`)
 var rSample = regexp.MustCompile(`\(Sample\)`)
+var rVersion = regexp.MustCompile(`\(Rev(.*)\)|\(v\d.*\)`)
 
 // Rom represents a game version
 type Rom struct {
@@ -26,11 +27,10 @@ type Rom struct {
 	Regions  []string
 	Version  string
 
-	Proto       bool
-	Beta        bool
-	BetaVersion int
-	Bios        bool
-	Sample      bool
+	Proto  bool
+	Beta   bool
+	Bios   bool
+	Sample bool
 }
 
 // New instanciates a new Rom
@@ -55,13 +55,33 @@ func (r *Rom) Fill() error {
 
 	r.Name = strings.TrimSpace(match[1])
 	r.Regions = utils.ExtractRegions(match[2])
-	// @todo r.Version
+	r.Version = r.extractVersion()
 
 	r.Proto = rProto.MatchString(r.Filename)
 	r.Beta = rBeta.MatchString(r.Filename)
-	// @todo r.BetaVersion
 	r.Bios = strings.HasPrefix(r.Filename, BIOS_PREFIX)
 	r.Sample = rSample.MatchString(r.Filename)
 
 	return nil
+}
+
+func (r *Rom) extractVersion() string {
+	result := ""
+
+	match := rVersion.FindStringSubmatch(r.Filename)
+	if len(match) == 2 {
+		result = match[0]
+	} else {
+		match = rBeta.FindStringSubmatch(r.Filename)
+		if len(match) == 2 {
+			result = match[0]
+		}
+	}
+
+	if result != "" {
+		// drop parenthesis
+		result = result[1 : len(result)-1]
+	}
+
+	return result
 }
