@@ -33,6 +33,7 @@ var (
 	fNoPirate bool
 	fNoPromo  bool
 
+	fVerbose bool
 	fDebug   bool
 	fVersion bool
 )
@@ -43,9 +44,9 @@ func init() {
 
 	// flags
 	flag.StringVar(&fDir, "dir", "", "Roms absolute directory (default is current working dir)")
-	flag.StringVar(&fRegions, "regions", DEFAULT_REGIONS, fmt.Sprintf("Preferred regions (default: %s)", DEFAULT_REGIONS))
+	flag.StringVar(&fRegions, "regions", DEFAULT_REGIONS, "Preferred regions")
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
-	flag.BoolVar(&fSane, "sane", false, "Activates flags: no-proto, no-beta, no-sample, no-demo, no-pirate, no-promo")
+	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto, -no-beta, -no-sample, -no-demo, -no-pirate, -no-promo")
 
 	flag.BoolVar(&fNoProto, "no-proto", false, "Skip roms tagged with 'Promo'")
 	flag.BoolVar(&fNoBeta, "no-beta", false, "Skip roms tagged with 'Beta'")
@@ -54,6 +55,7 @@ func init() {
 	flag.BoolVar(&fNoPirate, "no-pirate", false, "Skip roms tagged with 'Pirate'")
 	flag.BoolVar(&fNoPromo, "no-promo", false, "Skip roms tagged with 'Promo'")
 
+	flag.BoolVar(&fVerbose, "verbose", false, "Activate verbose output")
 	flag.BoolVar(&fDebug, "debug", false, "Activate debug logs")
 	flag.BoolVar(&fVersion, "version", false, "Display charette version")
 }
@@ -104,6 +106,7 @@ func main() {
 	options.NoPromo = fNoPromo
 
 	options.Mame = fMame
+	options.Verbose = fVerbose
 	options.Debug = fDebug
 
 	// run harvester

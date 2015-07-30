@@ -11,8 +11,9 @@ type Options struct {
 	NoPirate bool
 	NoPromo  bool
 
-	Mame  bool
-	Debug bool
+	Mame    bool
+	Verbose bool
+	Debug   bool
 }
 
 // NewOptions instanciates a new Options

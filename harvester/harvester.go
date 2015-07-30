@@ -80,7 +80,14 @@ func (h *Harvester) Run() error {
 
 // filter keeps only wanted roms
 func (h *Harvester) filter() error {
-	// @todo !!!
+	for _, game := range h.Games {
+		// computes best game version
+		if r := game.BestRom(h.Options.Regions); r != nil {
+			// @todo Move it !
+			fmt.Printf("Best ROM: %v\n", r.Filename)
+		}
+	}
+
 	return nil
 }
 
@@ -96,13 +103,15 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 	}
 
 	if skip, msg := h.skip(r); skip {
-		fmt.Printf("Skipped '%s': %s\n", r, msg)
+		if h.Options.Verbose {
+			fmt.Printf("Skipped '%s': %s\n", r, msg)
+		}
 		return nil
 	}
 
 	if h.Games[r.Name] == nil {
 		// it's a new game
-		g := rom.NewGame(r.Name)
+		g := rom.NewGame()
 		g.AddRom(r)
 
 		h.Games[r.Name] = g

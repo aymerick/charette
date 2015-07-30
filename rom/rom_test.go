@@ -123,11 +123,11 @@ var fillTests = []struct {
 //   Mike Ditka Power Football (USA, Europe) (Unl).zip
 //
 
-func TestFill(t *testing.T) {
+func TestRomFill(t *testing.T) {
 	for _, test := range fillTests {
 		rom := New(test.fileName)
 		if err := rom.Fill(); err != nil {
-			t.Fatal("Fill failed: %s", err)
+			t.Fatal("Fill failed", err)
 		}
 
 		if rom.Name != test.name {

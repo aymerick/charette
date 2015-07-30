@@ -47,9 +47,61 @@ func New(filename string) *Rom {
 	}
 }
 
+// MustFill instanciates an fill a new Rom. Panics on error.
+func MustFill(filename string) *Rom {
+	r := New(filename)
+	if err := r.Fill(); err != nil {
+		panic(err)
+	}
+	return r
+}
+
+// HaveAltTag returns true if rom have an alternative version tag
+func (r *Rom) HaveAltTag() bool {
+	return r.Proto || r.Beta || r.Sample || r.Demo || r.Pirate || r.Promo
+}
+
 // String returns the string representation of Rom
 func (r *Rom) String() string {
-	return fmt.Sprintf("%s %v", r.Name, r.Regions)
+	result := ""
+
+	if r.Bios {
+		result += "[BIOS] "
+	}
+
+	result += fmt.Sprintf("%s (%s)", r.Name, strings.Join(r.Regions, ", "))
+
+	if r.Proto || r.Sample || r.Demo || r.Pirate || r.Promo {
+		tags := []string{}
+
+		if r.Proto {
+			tags = append(tags, "Proto")
+		}
+
+		if r.Sample {
+			tags = append(tags, "Sample")
+		}
+
+		if r.Demo {
+			tags = append(tags, "Demo")
+		}
+
+		if r.Pirate {
+			tags = append(tags, "Pirate")
+		}
+
+		if r.Promo {
+			tags = append(tags, "Promo")
+		}
+
+		result += " (" + strings.Join(tags, ", ") + ")"
+	}
+
+	if r.Version != "" {
+		result += " (" + r.Version + ")"
+	}
+
+	return result
 }
 
 // Fill extracts Rom infos from filename
@@ -75,6 +127,19 @@ func (r *Rom) Fill() error {
 	return nil
 }
 
+// BestRegionIndex computes the lowest index in given regions list for that rom
+func (r *Rom) BestRegionIndex(regions []string) int {
+	result := len(regions) - 1
+
+	for _, region := range r.Regions {
+		if i := indexOf(regions, region); i < result {
+			result = i
+		}
+	}
+
+	return result
+}
+
 func (r *Rom) extractVersion() string {
 	result := ""
 
@@ -94,4 +159,16 @@ func (r *Rom) extractVersion() string {
 	}
 
 	return result
+}
+
+// @todo Move that to a 'utils' package
+func indexOf(ar []string, value string) int {
+	for i, v := range ar {
+		if v == value {
+			return i
+		}
+	}
+
+	// not found
+	return -1
 }
