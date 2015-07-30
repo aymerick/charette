@@ -21,6 +21,7 @@ func init() {
 	extensions = []string{".zip", ".7z"}
 }
 
+// Harvester collects wanted roms from given directory
 type Harvester struct {
 	// roms directory
 	Dir string
@@ -32,6 +33,7 @@ type Harvester struct {
 	Games map[string]*rom.Game
 }
 
+// New instanciates a new Harvester
 func New(dir string, options *Options) *Harvester {
 	return &Harvester{
 		Dir:     dir,
@@ -41,11 +43,13 @@ func New(dir string, options *Options) *Harvester {
 	}
 }
 
+// Run detects roms in directory and filters them
 func (h *Harvester) Run() error {
 	if h.Debug {
 		log.Printf("Scanning files: %s", h.Dir)
 	}
 
+	// process files
 	infos, err := ioutil.ReadDir(h.Dir)
 	if err != nil {
 		return err
@@ -67,11 +71,21 @@ func (h *Harvester) Run() error {
 		}
 	}
 
-	// @todo Filter roms
+	// filter roms
+	if err := h.filter(); err != nil {
+		return err
+	}
 
 	return nil
 }
 
+// filter keeps only wanted roms
+func (h *Harvester) filter() error {
+	// @todo !!!
+	return nil
+}
+
+// processFile handles a new file
 func (h *Harvester) processFile(info os.FileInfo) error {
 	if h.Debug {
 		log.Printf("Processing: %s", info.Name())
@@ -106,6 +120,7 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 	return nil
 }
 
+// skip returns true if given rom must be skiped, with an explanation message
 func (h *Harvester) skip(r *rom.Rom) (bool, string) {
 	if strings.HasPrefix(r.Name, "[BIOS]") {
 		return true, "Ignore bios"

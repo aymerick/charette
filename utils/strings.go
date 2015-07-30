@@ -2,6 +2,7 @@ package utils
 
 import "strings"
 
+// ExtractRegions returns an array of regions
 func ExtractRegions(str string) []string {
 	result := []string{}
 
