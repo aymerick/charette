@@ -3,6 +3,7 @@ package rom
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -59,6 +60,12 @@ func MustFill(filename string) *Rom {
 // HaveAltTag returns true if rom have an alternative version tag
 func (r *Rom) HaveAltTag() bool {
 	return r.Proto || r.Beta || r.Sample || r.Demo || r.Pirate || r.Promo
+}
+
+// IsZipped returns true if this is a zipped rom
+func (r *Rom) IsZipped() bool {
+	fileExt := filepath.Ext(r.Filename)
+	return fileExt == ".zip"
 }
 
 // String returns the string representation of Rom
@@ -125,6 +132,17 @@ func (r *Rom) Fill() error {
 	r.Promo = rPromo.MatchString(r.Filename)
 
 	return nil
+}
+
+// HaveRegion returns true if rom matches with given regions
+func (r *Rom) HaveRegion(regions []string) bool {
+	for _, region := range regions {
+		if indexOf(r.Regions, region) != -1 {
+			return true
+		}
+	}
+
+	return false
 }
 
 // BestRegionIndex computes the lowest index in given regions list for that rom

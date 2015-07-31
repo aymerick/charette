@@ -1,7 +1,9 @@
 package harvester
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -71,6 +73,12 @@ func New(dir string, garbage string, options *Options) *Harvester {
 
 // Run detects roms in directory and filters them
 func (h *Harvester) Run() error {
+	if h.Options.Mame {
+		// @todo
+		fmt.Println("ERR: -mame flag not implemented yet")
+		return nil
+	}
+
 	if h.Debug {
 		log.Printf("Scanning files: %s", h.Dir)
 	}
@@ -110,6 +118,16 @@ func (h *Harvester) Run() error {
 		return err
 	}
 
+	if h.Options.Unzip {
+		// unzip roms
+		h.unzip()
+	}
+
+	if h.Options.Scrap {
+		// scrap roms
+		h.scrap()
+	}
+
 	return nil
 }
 
@@ -117,7 +135,7 @@ func (h *Harvester) Run() error {
 func (h *Harvester) discard() error {
 	if _, err := os.Stat(h.Garbage); os.IsNotExist(err) {
 		// create garbage directory
-		if err := os.MkdirAll(h.Garbage, 0777); err != nil {
+		if err := os.MkdirAll(h.Garbage, 0755); err != nil {
 			return err
 		}
 	}
@@ -126,12 +144,19 @@ func (h *Harvester) discard() error {
 
 	// discard skipped files
 	for _, fileName := range h.Skipped {
-		h.moveFile(fileName)
+		if err := h.moveFile(fileName); err != nil {
+			fmt.Printf("ERR: %v\n", err)
+		} else {
+			nb += 1
+		}
 	}
 
 	// discard unwanted roms
-	for _, game := range h.Games {
-		roms := game.GarbageRoms(h.Options.Regions)
+	for _, g := range h.Games {
+		// sort roms
+		g.SortRoms(h.Options.Regions)
+
+		roms := g.GarbageRoms()
 		for _, r := range roms {
 			if err := h.moveFile(r.Filename); err != nil {
 				fmt.Printf("ERR: %v\n", err)
@@ -150,6 +175,91 @@ func (h *Harvester) discard() error {
 	return nil
 }
 
+// unzip decompress all selected roms
+func (h *Harvester) unzip() {
+	nb := 0
+
+	for _, g := range h.Games {
+		r := g.BestRom()
+		if r.IsZipped() {
+			if err := h.unzipFile(r.Filename); err != nil {
+				fmt.Printf("ERR: %v\n", err)
+			} else {
+				nb += 1
+
+				if err := h.deleteFile(r.Filename); err != nil {
+					fmt.Printf("ERR: %v\n", err)
+				}
+			}
+		}
+	}
+
+	if nb > 0 {
+		fmt.Printf("Unzipped %v files\n", nb)
+	}
+}
+
+// unzipFile decompress given file
+func (h *Harvester) unzipFile(fileName string) error {
+	filePath := path.Join(h.Dir, fileName)
+
+	zipReader, err := zip.OpenReader(filePath)
+	if err != nil {
+		return err
+	}
+	defer zipReader.Close()
+
+	for _, f := range zipReader.Reader.File {
+		zipFile, err := f.Open()
+		if err != nil {
+			return err
+		}
+		defer zipFile.Close()
+
+		path := filepath.Join(h.Dir, f.Name)
+
+		if f.FileInfo().IsDir() {
+			if !h.Options.Noop {
+				os.MkdirAll(path, f.Mode())
+			}
+		} else {
+			writer, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, f.Mode())
+			if err != nil {
+				return err
+			}
+			defer writer.Close()
+
+			if !h.Options.Noop {
+				if _, err = io.Copy(writer, zipFile); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// deleteFile deletes given file
+func (h *Harvester) deleteFile(fileName string) error {
+	filePath := path.Join(h.Dir, fileName)
+
+	if !h.Options.Noop {
+		if err := os.Remove(filePath); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// scrap grabs images for all selected roms
+func (h *Harvester) scrap() {
+	// @todo
+	fmt.Printf("ERR: -scrap flag not implemented yet\n")
+}
+
+// moveFile moves given file to garbage
 func (h *Harvester) moveFile(fileName string) error {
 	oldPath := path.Join(h.Dir, fileName)
 	newPath := path.Join(h.Garbage, fileName)
@@ -195,6 +305,10 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 
 // skip returns true if given rom must be skiped, with an explanation message
 func (h *Harvester) skip(r *rom.Rom) (bool, string) {
+	if !r.HaveRegion(h.Options.Regions) {
+		return true, fmt.Sprintf("Leave me alone: %v", r.Regions)
+	}
+
 	if r.Proto && h.Options.NoProto {
 		return true, "Ignore proto"
 	}

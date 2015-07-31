@@ -19,17 +19,18 @@ const (
 )
 
 var (
-	// allowed file extensions
-	extensions []string
-
 	// flags
 	fDir     string
 	fGarbage string
 	fNoop    bool
 
-	fRegions string
-	fMame    bool // @todo Handle that
-	fSane    bool
+	fRegions      string
+	fLeaveMeAlone bool
+	fMame         bool
+	fSane         bool
+	fUnzip        bool
+	fScrap        bool
+	fSus          bool
 
 	fNoProto  bool
 	fNoBeta   bool
@@ -44,9 +45,7 @@ var (
 )
 
 func init() {
-	// no-intro file extensions
-	extensions = []string{".zip", ".7z"}
-
+	// get current directory
 	curDir, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -58,8 +57,12 @@ func init() {
 	flag.BoolVar(&fNoop, "noop", false, "Noop mode: do nothing, usefull for debugging")
 
 	flag.StringVar(&fRegions, "regions", DEFAULT_REGIONS, "Preferred regions")
+	flag.BoolVar(&fLeaveMeAlone, "leave-me-alone", false, "Skip games that are not in preferred regions")
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
-	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto, -no-beta, -no-sample, -no-demo, -no-pirate, -no-promo")
+	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto -no-beta -no-sample -no-demo -no-pirate -no-promo")
+	flag.BoolVar(&fUnzip, "unzip", false, "Unzip roms")
+	flag.BoolVar(&fScrap, "scrap", false, "Scrap roms images")
+	flag.BoolVar(&fSus, "sus", false, "Activates flags: -sane -unzip -scrap")
 
 	flag.BoolVar(&fNoProto, "no-proto", false, "Skip roms tagged with 'Promo'")
 	flag.BoolVar(&fNoBeta, "no-beta", false, "Skip roms tagged with 'Beta'")
@@ -93,6 +96,12 @@ func main() {
 		fNoPromo = true
 	}
 
+	if fSus {
+		fSane = true
+		fUnzip = true
+		fScrap = true
+	}
+
 	if fDir == "" {
 		fDir, err = os.Getwd()
 		if err != nil {
@@ -115,6 +124,8 @@ func main() {
 
 	options.Regions = core.ExtractRegions(fRegions)
 
+	options.LeaveMeAlone = fLeaveMeAlone
+
 	options.NoProto = fNoProto
 	options.NoBeta = fNoBeta
 	options.NoSample = fNoSample
@@ -126,6 +137,8 @@ func main() {
 	options.Verbose = fVerbose
 	options.Debug = fDebug
 	options.Noop = fNoop
+	options.Unzip = fUnzip
+	options.Scrap = fScrap
 
 	// run harvester
 	h := harvester.New(fDir, fGarbage, options)

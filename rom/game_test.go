@@ -14,15 +14,16 @@ func TestGameBestRom(t *testing.T) {
 	r4 := g.AddRom(MustFill("Addams Family, The - Pugsley's Scavenger Hunt (Europe) (Rev 2).zip"))
 	r5 := g.AddRom(MustFill("Addams Family, The - Pugsley's Scavenger Hunt (USA) (Beta).zip"))
 
+	regions := []string{"Europe", "USA", "Japan"}
+	g.SortRoms(regions)
+
 	expectedGarbage := []*Rom{r2, r3, r1, r5}
 
-	regions := []string{"Europe", "USA", "Japan"}
-
-	if r := g.BestRom(regions); r != r4 {
+	if r := g.BestRom(); r != r4 {
 		t.Errorf("Game best rom computation failed, got '%v' but expected '%v'", r, r4)
 	}
 
-	garbage := g.GarbageRoms(regions)
+	garbage := g.GarbageRoms()
 	if len(garbage) != len(expectedGarbage) {
 		t.Fatal(fmt.Sprintf("Game garbage rom computation failed\n\tgot     : %v\n\texpected: %v", garbage, expectedGarbage))
 	}
@@ -47,9 +48,10 @@ func TestGameRomsSort(t *testing.T) {
 	r8 := g.AddRom(MustFill("Addams Family, The - Pugsley's Scavenger Hunt (USA) (Beta 1).zip"))
 
 	regions := []string{"Europe", "USA", "Japan"}
+	g.SortRoms(regions)
+
 	expected := []*Rom{r5, r3, r4, r2, r6, r8, r1, r7}
 
-	g.sortRoms(regions)
 	for _, rom := range g.Roms {
 		log.Printf("    %v", rom)
 	}
@@ -71,9 +73,10 @@ func TestGameRomsSort2(t *testing.T) {
 	r5 := g.AddRom(MustFill("Donkey Kong Country 2 - Diddy's Kong Quest (USA) (Rev 1).zip"))
 
 	regions := []string{"France", "Europe", "World", "USA", "Japan"}
+	g.SortRoms(regions)
+
 	expected := []*Rom{r1, r5, r4, r3, r2}
 
-	g.sortRoms(regions)
 	for _, rom := range g.Roms {
 		log.Printf("    %v", rom)
 	}
