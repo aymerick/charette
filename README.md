@@ -18,9 +18,9 @@ With that flag, only sane roms are selected, then they are unziped and scrapped.
 
 Default preferred regions setting is `France,Europe,World,USA,Japan`.
 
-It means that when a game has several roms, then `charette` selects the `France` one if it exists, else the `Europe` one, etc. If the game has no rom with preferred region, it is still selected with a random rom, unless you specify the `-leave-me-alone` flag, and in that case the game is skipped.
+It means that when a game has several roms, then `charette` selects the `France` one if it exists, otherwise the `Europe` one, etc. If the game has no rom with preferred region, it is still selected with a random rom, unless you specify the `-leave-me-alone` flag, and in that case the game is skipped.
 
-You can change that setting with the `-regions` flag:
+You can change set the `regions` setting with the `-regions` flag:
 
     $ go run main.go -dir="/PATH/TO/snes/" -regions=USA,World,Europe,Japan
 
@@ -36,7 +36,7 @@ When working on `mame` roms, you have to set the `-mame` flag:
 
 ### Sane
 
-The `-sane` flag skips all roms marked as `Proto`, `Demo`, `Pirate`, `Beta`, `Sample`...
+The `-sane` flag skips all roms marked as `Proto`, `Demo`, `Pirate`, `Beta`, `Sample`, etc.
 
     $ go run main.go -dir="/PATH/TO/snes/" -sane
 
@@ -52,7 +52,7 @@ Note that `.7z` files are NOT supported for the moment.
 
 ### Scrape
 
-If you to scrap roms images, use the `-scrap` flag:
+If you want to scrap roms images, use the `-scrap` flag:
 
     $ go run main.go -dir="/PATH/TO/snes/" -sane -unzip -scrap
 
