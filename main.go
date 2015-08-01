@@ -29,7 +29,6 @@ var (
 	fMame         bool
 	fSane         bool
 	fUnzip        bool
-	fSaun         bool
 
 	fNoProto  bool
 	fNoBeta   bool
@@ -60,7 +59,6 @@ func init() {
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
 	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto -no-beta -no-sample -no-demo -no-pirate -no-promo")
 	flag.BoolVar(&fUnzip, "unzip", false, "Unzip roms")
-	flag.BoolVar(&fSaun, "saun", false, "Activates flags: -sane -unzip")
 
 	flag.BoolVar(&fNoProto, "no-proto", false, "Skip roms tagged with 'Promo'")
 	flag.BoolVar(&fNoBeta, "no-beta", false, "Skip roms tagged with 'Beta'")
@@ -92,11 +90,6 @@ func main() {
 		fNoDemo = true
 		fNoPirate = true
 		fNoPromo = true
-	}
-
-	if fSaun {
-		fSane = true
-		fUnzip = true
 	}
 
 	if fDir == "" {

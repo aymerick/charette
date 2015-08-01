@@ -8,11 +8,11 @@ Filter your [no-intro](http://www.no-intro.org) roms.
 
 All unwanted roms are then moved to `/PATH/TO/snes/_GARBAGE_/` directory.
 
-You probably want to use the `-saun` flag, that is equivalent to `-sane -unzip`:
+You may want to use the `-sane` and `unzip` flags:
 
-    $ go run main.go -dir="/PATH/TO/snes/" -saun
+    $ go run main.go -dir="/PATH/TO/snes/" -sane -unzip
 
-With that flag, only sane roms are selected, then they are unziped.
+With those flags, only "sane" roms are selected, then they are unziped.
 
 ### Regions
 

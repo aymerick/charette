@@ -17,7 +17,6 @@ type Options struct {
 	Debug   bool
 	Noop    bool
 	Unzip   bool
-	Saun    bool
 }
 
 // NewOptions instanciates a new Options
