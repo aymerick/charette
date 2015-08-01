@@ -48,7 +48,7 @@ If you want to unzip selected roms, use the `-unzip` flag:
 
 The roms are extracted and the `.zip` files are deleted.
 
-Note that `.7z` files are NOT supported for the moment.
+Note that `.7z` format is NOT supported for the moment, so you must decompress those files manually.
 
 ### Scraper
 
