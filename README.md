@@ -8,11 +8,11 @@ Filter your [no-intro](http://www.no-intro.org) roms.
 
 All unwanted roms are then moved to `/PATH/TO/snes/_GARBAGE_/` directory.
 
-You probably want to use the `-sus` flag, that is equivalent to `-sane -unzip -scrap`:
+You probably want to use the `-saun` flag, that is equivalent to `-sane -unzip`:
 
-    $ go run main.go -dir="/PATH/TO/snes/" -sus
+    $ go run main.go -dir="/PATH/TO/snes/" -saun
 
-With that flag, only sane roms are selected, then they are unziped and scrapped.
+With that flag, only sane roms are selected, then they are unziped.
 
 ### Regions
 
@@ -50,13 +50,19 @@ The roms are extracted and the `.zip` files are deleted.
 
 Note that `.7z` files are NOT supported for the moment.
 
-### Scrape
+### Scraper
 
-If you want to scrap roms images, use the `-scrap` flag:
+If you want to scrap roms images, install [scraper](https://github.com/sselph/scraper).
 
-    $ go run main.go -dir="/PATH/TO/snes/" -sane -unzip -scrap
+First remove the `_GARBAGE_` subdirectory (otherwise it will be scraped), then launch `scraper`:
 
-Note that only unziped files will be scraped (except for `mame`).
+    $ cd /PATH/TO/snes/
+    $ scraper -max_width=375 -no_thumb=true
+
+For MAME roms:
+
+    $ cd /PATH/TO/mame/
+    $ scraper -max_width=375 -no_thumb=true -name -mame_img=m,t,s
 
 
 ## Allowed regions

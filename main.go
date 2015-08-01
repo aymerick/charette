@@ -29,8 +29,7 @@ var (
 	fMame         bool
 	fSane         bool
 	fUnzip        bool
-	fScrap        bool
-	fSus          bool
+	fSaun         bool
 
 	fNoProto  bool
 	fNoBeta   bool
@@ -61,8 +60,7 @@ func init() {
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
 	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto -no-beta -no-sample -no-demo -no-pirate -no-promo")
 	flag.BoolVar(&fUnzip, "unzip", false, "Unzip roms")
-	flag.BoolVar(&fScrap, "scrap", false, "Scrap roms images")
-	flag.BoolVar(&fSus, "sus", false, "Activates flags: -sane -unzip -scrap")
+	flag.BoolVar(&fSaun, "saun", false, "Activates flags: -sane -unzip")
 
 	flag.BoolVar(&fNoProto, "no-proto", false, "Skip roms tagged with 'Promo'")
 	flag.BoolVar(&fNoBeta, "no-beta", false, "Skip roms tagged with 'Beta'")
@@ -96,10 +94,9 @@ func main() {
 		fNoPromo = true
 	}
 
-	if fSus {
+	if fSaun {
 		fSane = true
 		fUnzip = true
-		fScrap = true
 	}
 
 	if fDir == "" {
@@ -138,7 +135,6 @@ func main() {
 	options.Debug = fDebug
 	options.Noop = fNoop
 	options.Unzip = fUnzip
-	options.Scrap = fScrap
 
 	// run harvester
 	h := harvester.New(fDir, fGarbage, options)

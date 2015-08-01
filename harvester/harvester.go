@@ -123,11 +123,6 @@ func (h *Harvester) Run() error {
 		h.unzip()
 	}
 
-	if h.Options.Scrap {
-		// scrap roms
-		h.scrap()
-	}
-
 	return nil
 }
 
@@ -178,6 +173,8 @@ func (h *Harvester) discard() error {
 // unzip decompress all selected roms
 func (h *Harvester) unzip() {
 	nb := 0
+
+	fmt.Printf("Unzipping roms, please wait...\n")
 
 	for _, g := range h.Games {
 		r := g.BestRom()
@@ -253,12 +250,6 @@ func (h *Harvester) deleteFile(fileName string) error {
 	return nil
 }
 
-// scrap grabs images for all selected roms
-func (h *Harvester) scrap() {
-	// @todo
-	fmt.Printf("ERR: -scrap flag not implemented yet\n")
-}
-
 // moveFile moves given file to garbage
 func (h *Harvester) moveFile(fileName string) error {
 	oldPath := path.Join(h.Dir, fileName)
@@ -305,7 +296,7 @@ func (h *Harvester) processFile(info os.FileInfo) error {
 
 // skip returns true if given rom must be skiped, with an explanation message
 func (h *Harvester) skip(r *rom.Rom) (bool, string) {
-	if !r.HaveRegion(h.Options.Regions) {
+	if h.Options.LeaveMeAlone && !r.HaveRegion(h.Options.Regions) {
 		return true, fmt.Sprintf("Leave me alone: %v", r.Regions)
 	}
 
