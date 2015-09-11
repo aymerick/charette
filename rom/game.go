@@ -2,7 +2,7 @@ package rom
 
 import "sort"
 
-// Games represents a game with multiple versions
+// Game represents a game with multiple versions
 type Game struct {
 	Name string
 	Roms []*Rom
@@ -38,7 +38,7 @@ func (g *Game) SortRoms(regions []string) {
 	g.sorted = true
 }
 
-// BestRoom returns the best rom matching the given criteria
+// BestRom returns the best rom matching the given criteria
 func (g *Game) BestRom() *Rom {
 	if !g.sorted {
 		panic("Roms must be sorted")
@@ -47,7 +47,7 @@ func (g *Game) BestRom() *Rom {
 	return g.Roms[0]
 }
 
-// BestRoom returns roms that can be discarded
+// GarbageRoms returns roms that can be discarded
 func (g *Game) GarbageRoms() []*Rom {
 	if !g.sorted {
 		panic("Roms must be sorted")
@@ -64,12 +64,13 @@ func (g *Game) GarbageRoms() []*Rom {
 // Sort
 //
 
-// Games represents a game with multiple versions
+// GameRomsSort represents a game with sorted regions
 type GameRomsSort struct {
 	Game    *Game
 	Regions []string
 }
 
+// NewRomsSort instanciates a new GameRomsSort
 func (g *Game) NewRomsSort(regions []string) *GameRomsSort {
 	return &GameRomsSort{
 		Game:    g,

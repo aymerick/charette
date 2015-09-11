@@ -106,7 +106,7 @@ func (h *Harvester) Run() error {
 			fmt.Printf("ERR: %v\n", err)
 		}
 
-		nb += 1
+		nb++
 	}
 
 	fmt.Printf("Processed %v files\n", nb)
@@ -142,7 +142,7 @@ func (h *Harvester) discard() error {
 		if err := h.moveFile(fileName); err != nil {
 			fmt.Printf("ERR: %v\n", err)
 		} else {
-			nb += 1
+			nb++
 		}
 	}
 
@@ -156,7 +156,7 @@ func (h *Harvester) discard() error {
 			if err := h.moveFile(r.Filename); err != nil {
 				fmt.Printf("ERR: %v\n", err)
 			} else {
-				nb += 1
+				nb++
 			}
 		}
 	}
@@ -182,7 +182,7 @@ func (h *Harvester) unzip() {
 			if err := h.unzipFile(r.Filename); err != nil {
 				fmt.Printf("ERR: %v\n", err)
 			} else {
-				nb += 1
+				nb++
 
 				if err := h.deleteFile(r.Filename); err != nil {
 					fmt.Printf("ERR: %v\n", err)

@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	BIOS_PREFIX = "[BIOS]"
+	biosPrefix = "[BIOS]"
 )
 
 // regexps
@@ -125,7 +125,7 @@ func (r *Rom) Fill() error {
 
 	r.Proto = rProto.MatchString(r.Filename)
 	r.Beta = rBeta.MatchString(r.Filename)
-	r.Bios = strings.HasPrefix(r.Filename, BIOS_PREFIX)
+	r.Bios = strings.HasPrefix(r.Filename, biosPrefix)
 	r.Sample = rSample.MatchString(r.Filename)
 	r.Demo = rDemo.MatchString(r.Filename)
 	r.Pirate = rPirate.MatchString(r.Filename)

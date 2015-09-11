@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	VERSION = "0.0.1"
+	version = "0.0.1"
 
-	DEFAULT_REGIONS = "France,Europe,World,USA,Japan"
-	DEFAULT_GARBAGE = "_GARBAGE_"
+	defaultRegions = "France,Europe,World,USA,Japan"
+	defaultGarbage = "_GARBAGE_"
 )
 
 var (
@@ -54,7 +54,7 @@ func init() {
 	flag.StringVar(&fGarbage, "garbage", "", "Garbage absolute directory (default is '<dir>/_GARBAGE_'")
 	flag.BoolVar(&fNoop, "noop", false, "Noop mode: do nothing, usefull for debugging")
 
-	flag.StringVar(&fRegions, "regions", DEFAULT_REGIONS, "Preferred regions")
+	flag.StringVar(&fRegions, "regions", defaultRegions, "Preferred regions")
 	flag.BoolVar(&fLeaveMeAlone, "leave-me-alone", false, "Skip games that are not in preferred regions")
 	flag.BoolVar(&fMame, "mame", false, "MAME roms")
 	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto -no-beta -no-sample -no-demo -no-pirate -no-promo")
@@ -79,7 +79,7 @@ func main() {
 
 	// check flags
 	if fVersion {
-		fmt.Println(VERSION)
+		fmt.Println(version)
 		os.Exit(0)
 	}
 
@@ -100,11 +100,11 @@ func main() {
 	}
 
 	if fGarbage == "" {
-		fGarbage = path.Join(fDir, DEFAULT_GARBAGE)
+		fGarbage = path.Join(fDir, defaultGarbage)
 	}
 
 	if fDebug {
-		log.Printf("charette v%s", VERSION)
+		log.Printf("charette v%s", version)
 		log.Printf("   dir: %s", fDir)
 		log.Printf("   mame: %v", fMame)
 	}

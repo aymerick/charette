@@ -3,12 +3,11 @@ package core
 import "strings"
 
 var (
-	// allowed regions
-	AllowedRegions map[string]bool
+	allowedRegions map[string]bool
 )
 
 func init() {
-	AllowedRegions = map[string]bool{
+	allowedRegions = map[string]bool{
 		"Asia":        true,
 		"Australia":   true,
 		"Brazil":      true,
@@ -42,7 +41,7 @@ func ExtractRegions(str string) []string {
 	for _, region := range regions {
 		region = strings.TrimSpace(region)
 
-		if AllowedRegions[region] {
+		if allowedRegions[region] {
 			result = append(result, region)
 		}
 	}
