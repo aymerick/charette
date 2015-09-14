@@ -15,27 +15,28 @@ const (
 	version = "0.0.1"
 
 	defaultRegions = "France,Europe,World,USA,Japan"
-	defaultGarbage = "_GARBAGE_"
+	defaultOutput  = "roms"
+	defaultTmpDir  = ".~charette"
 )
 
 var (
 	// flags
-	fDir     string
-	fGarbage string
-	fNoop    bool
+	fInput  string
+	fOutput string
+	fTmpDir string
+	fNoop   bool
 
 	fRegions      string
 	fLeaveMeAlone bool
-	fMame         bool
-	fSane         bool
+	fInsane       bool
 	fUnzip        bool
 
-	fNoProto  bool
-	fNoBeta   bool
-	fNoSample bool
-	fNoDemo   bool
-	fNoPirate bool
-	fNoPromo  bool
+	fKeepProto  bool
+	fKeepBeta   bool
+	fKeepSample bool
+	fKeepDemo   bool
+	fKeepPirate bool
+	fKeepPromo  bool
 
 	fVerbose bool
 	fDebug   bool
@@ -50,22 +51,22 @@ func init() {
 	}
 
 	// flags
-	flag.StringVar(&fDir, "dir", curDir, "Roms absolute directory")
-	flag.StringVar(&fGarbage, "garbage", "", "Garbage absolute directory (default is '<dir>/_GARBAGE_'")
+	flag.StringVar(&fInput, "input", curDir, "Path to no-intro archives directory")
+	flag.StringVar(&fOutput, "output", path.Join(curDir, defaultOutput), "Path to output directory")
+	flag.StringVar(&fTmpDir, "tmp", path.Join(curDir, defaultTmpDir), "Path to temporary working directory")
 	flag.BoolVar(&fNoop, "noop", false, "Noop mode: do nothing, usefull for debugging")
 
 	flag.StringVar(&fRegions, "regions", defaultRegions, "Preferred regions")
 	flag.BoolVar(&fLeaveMeAlone, "leave-me-alone", false, "Skip games that are not in preferred regions")
-	flag.BoolVar(&fMame, "mame", false, "MAME roms")
-	flag.BoolVar(&fSane, "sane", false, "Activates flags: -no-proto -no-beta -no-sample -no-demo -no-pirate -no-promo")
+	flag.BoolVar(&fInsane, "insane", false, "Activates flags: -keep-proto -keep-beta -keep-sample -keep-demo -keep-pirate -keep-promo")
 	flag.BoolVar(&fUnzip, "unzip", false, "Unzip roms")
 
-	flag.BoolVar(&fNoProto, "no-proto", false, "Skip roms tagged with 'Promo'")
-	flag.BoolVar(&fNoBeta, "no-beta", false, "Skip roms tagged with 'Beta'")
-	flag.BoolVar(&fNoSample, "no-sample", false, "Skip roms tagged with 'Sample'")
-	flag.BoolVar(&fNoDemo, "no-demo", false, "Skip roms tagged with 'Demo'")
-	flag.BoolVar(&fNoPirate, "no-pirate", false, "Skip roms tagged with 'Pirate'")
-	flag.BoolVar(&fNoPromo, "no-promo", false, "Skip roms tagged with 'Promo'")
+	flag.BoolVar(&fKeepProto, "keep-proto", false, "Keep roms tagged with 'Promo'")
+	flag.BoolVar(&fKeepBeta, "keep-beta", false, "Keep roms tagged with 'Beta'")
+	flag.BoolVar(&fKeepSample, "keep-sample", false, "Keep roms tagged with 'Sample'")
+	flag.BoolVar(&fKeepDemo, "keep-demo", false, "Keep roms tagged with 'Demo'")
+	flag.BoolVar(&fKeepPirate, "keep-pirate", false, "Keep roms tagged with 'Pirate'")
+	flag.BoolVar(&fKeepPromo, "keep-promo", false, "Keep roms tagged with 'Promo'")
 
 	flag.BoolVar(&fVerbose, "verbose", false, "Activate verbose output")
 	flag.BoolVar(&fDebug, "debug", false, "Activate debug logs")
@@ -73,8 +74,6 @@ func init() {
 }
 
 func main() {
-	var err error
-
 	flag.Parse()
 
 	// check flags
@@ -83,55 +82,67 @@ func main() {
 		os.Exit(0)
 	}
 
-	if fSane {
-		fNoProto = true
-		fNoBeta = true
-		fNoSample = true
-		fNoDemo = true
-		fNoPirate = true
-		fNoPromo = true
+	if fInsane {
+		fKeepProto = true
+		fKeepBeta = true
+		fKeepSample = true
+		fKeepDemo = true
+		fKeepPirate = true
+		fKeepPromo = true
 	}
 
-	if fDir == "" {
-		fDir, err = os.Getwd()
-		if err != nil {
-			panic(err)
-		}
+	if fInput == "" {
+		fInput = curDir()
 	}
 
-	if fGarbage == "" {
-		fGarbage = path.Join(fDir, defaultGarbage)
+	if fOutput == "" {
+		fOutput = path.Join(curDir(), defaultOutput)
 	}
 
-	if fDebug {
+	if fTmpDir == "" {
+		fTmpDir = path.Join(curDir(), defaultTmpDir)
+	}
+
+	if fVerbose {
 		log.Printf("charette v%s", version)
-		log.Printf("   dir: %s", fDir)
-		log.Printf("   mame: %v", fMame)
+		log.Printf("   input: %s", fInput)
+		log.Printf("   output: %s", fOutput)
+		log.Printf("   tmp: %s", fTmpDir)
 	}
 
 	// computes options
-	options := harvester.NewOptions()
+	options := core.NewOptions()
 
 	options.Regions = core.ExtractRegions(fRegions)
 
 	options.LeaveMeAlone = fLeaveMeAlone
 
-	options.NoProto = fNoProto
-	options.NoBeta = fNoBeta
-	options.NoSample = fNoSample
-	options.NoDemo = fNoDemo
-	options.NoPirate = fNoPirate
-	options.NoPromo = fNoPromo
+	options.KeepProto = fKeepProto
+	options.KeepBeta = fKeepBeta
+	options.KeepSample = fKeepSample
+	options.KeepDemo = fKeepDemo
+	options.KeepPirate = fKeepPirate
+	options.KeepPromo = fKeepPromo
 
-	options.Mame = fMame
 	options.Verbose = fVerbose
 	options.Debug = fDebug
 	options.Noop = fNoop
 	options.Unzip = fUnzip
+	options.Tmp = fTmpDir
 
 	// run harvester
-	h := harvester.New(fDir, fGarbage, options)
+	h := harvester.New(fInput, fOutput, fTmpDir, options)
 	if err := h.Run(); err != nil {
 		panic(err)
 	}
+}
+
+// curDir returns current directory
+func curDir() string {
+	curDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
+	return curDir
 }

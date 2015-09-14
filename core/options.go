@@ -1,22 +1,22 @@
-package harvester
+package core
 
 // Options holds the settings for Harvester
 type Options struct {
 	Regions      []string
 	LeaveMeAlone bool
 
-	NoProto  bool
-	NoBeta   bool
-	NoSample bool
-	NoDemo   bool
-	NoPirate bool
-	NoPromo  bool
+	KeepProto  bool
+	KeepBeta   bool
+	KeepSample bool
+	KeepDemo   bool
+	KeepPirate bool
+	KeepPromo  bool
 
-	Mame    bool
 	Verbose bool
 	Debug   bool
 	Noop    bool
 	Unzip   bool
+	Tmp     string
 }
 
 // NewOptions instanciates a new Options

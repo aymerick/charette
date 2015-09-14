@@ -2,68 +2,66 @@
 
 Filter your [no-intro](http://www.no-intro.org) roms.
 
+**WARNING: This is a work in progress... this is NOT WORKING YET.**
+
+## Dependencies
+
+All no-into sets are archived with 7zip, so you have to install the `7z` tool.
+
+On mac you can install it with [homebrew](http://brew.sh):
+
+    `brew install p7zip`
+
 ## Usage
 
-    $ go run main.go -dir="/PATH/TO/snes/"
+    $ charette
 
-All unwanted roms are then moved to `/PATH/TO/snes/_GARBAGE_/` directory.
+By default, the no-intro archives are searched into current directory, but you can set the `-input` flag instead:
 
-You may want to use the `-sane` and `unzip` flags:
+    $ charette -input="/PATH/TO/NO-INTRO/ARCHIVES/"
 
-    $ go run main.go -dir="/PATH/TO/snes/" -sane -unzip
+Selected roms are then copied into a new `/roms/` sub directory in current directory. You can change the output directory thanks to the `-output` flag:
 
-With those flags, only "sane" roms are selected, then they are unziped.
+    $ charette -input="/PATH/TO/NO-INTRO/ARCHIVES/"  -output="/PATH/TO/ROMS/"
 
 ### Regions
 
 Default preferred regions setting is `France,Europe,World,USA,Japan`.
 
-It means that when a game has several roms, then `charette` selects the `France` one if it exists, otherwise the `Europe` one, etc. If the game has no rom with preferred region, it is still selected with a random rom, unless you specify the `-leave-me-alone` flag, and in that case the game is skipped.
+It means that when a game has several roms, then `charette` selects the `France` one if it exists, otherwise the `Europe` one, etc. If the game has no rom with preferred region, it is still selected with a random region rom, unless you specify the `-leave-me-alone` flag, and in that case the game is skipped.
 
-You can change set the `regions` setting with the `-regions` flag:
+You can change the `regions` setting with the `-regions` flag:
 
-    $ go run main.go -dir="/PATH/TO/snes/" -regions=USA,World,Europe,Japan
+    $ charette -regions=USA,World,Europe,Japan
 
 If you want to keep only specified regions, set the `-leave-me-alone` flag. For example, to keep only `USA` roms:
 
-    $ go run main.go -dir="/PATH/TO/snes/" -regions=USA -leave-me-alone
-
-## MAME
-
-When working on `mame` roms, you have to set the `-mame` flag:
-
-    $ go run main.go -dir="/PATH/TO/mame/" -mame
-
-### Sane
-
-The `-sane` flag skips all roms marked as `Proto`, `Demo`, `Pirate`, `Beta`, `Sample`, etc.
-
-    $ go run main.go -dir="/PATH/TO/snes/" -sane
+    $ charette -regions=USA -leave-me-alone
 
 ### Unzip
 
-If you want to unzip selected roms, use the `-unzip` flag:
+If you want to output unzipped roms, use the `-unzip` flag:
 
-    $ go run main.go -dir="/PATH/TO/snes/" -sane -unzip
+    $ charette -unzip
 
-The roms are extracted and the `.zip` files are deleted.
+### Insane mode
 
-Note that `.7z` format is NOT supported for the moment, so you must decompress those files manually.
+By default, `charette` skips all roms tagged with `Proto`, `Demo`, `Pirate`, `Beta`, `Sample`...
+
+If you want to keep all those roms, then use the `-insane` flag:
+
+    $ charette -insane
 
 ### Scraper
 
-If you want to scrap roms images, install [scraper](https://github.com/sselph/scraper).
+Once `charette` ended, you can scrap roms images thanks to [scraper](https://github.com/sselph/scraper).
 
-First remove the `_GARBAGE_` subdirectory (otherwise it will be scraped), then launch `scraper`:
+Launch `scraper` on the output:
 
-    $ cd /PATH/TO/snes/
+    $ cd /PATH/TO/ROMS/
     $ scraper -max_width=375 -no_thumb=true
 
-For MAME roms:
-
-    $ cd /PATH/TO/mame/
-    $ scraper -max_width=375 -no_thumb=true -name -mame_img=m,t,s
-
+Adds `-append` flag when updating a rom directory.
 
 ## Allowed regions
 
