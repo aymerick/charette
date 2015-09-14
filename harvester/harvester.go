@@ -1,8 +1,9 @@
 package harvester
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
+	"os"
 	"path"
 	"path/filepath"
 
@@ -42,7 +43,7 @@ func New(input string, output string, tmp string, options *core.Options) *Harves
 // Run detects systems archives in input directory and processes them
 func (h *Harvester) Run() error {
 	if h.Options.Verbose {
-		log.Printf("Scaning input dir: %s", h.Input)
+		fmt.Printf("Scaning input dir: %s\n", h.Input)
 	}
 
 	// detect all no-intro archives
@@ -55,9 +56,25 @@ func (h *Harvester) Run() error {
 	for infos, archives := range systems {
 		system := h.addSystem(infos)
 
-		if err := h.processArchives(system, archives); err != nil {
+		if err := h.processSystemArchives(system, archives); err != nil {
 			return err
 		}
+	}
+
+	// Display stats
+	if h.Options.Verbose {
+		processed := 0
+		skipped := 0
+		games := 0
+
+		for _, system := range h.Systems {
+			processed += system.Processed
+			skipped += system.Skipped
+			games += len(system.Games)
+		}
+
+		fmt.Printf("Processed %v files (skipped: %v)\n", processed, skipped)
+		fmt.Printf("Selected %v games\n", games)
 	}
 
 	return nil
@@ -77,7 +94,7 @@ func (h *Harvester) scanArchives(dir string) (map[system.Infos][]string, error) 
 
 		if file.IsDir() {
 			if h.Options.Verbose {
-				log.Printf("Scanning subdir: %s", filePath)
+				fmt.Printf("Scaning subdir: %s\n", filePath)
 			}
 
 			subArchives, err := h.scanArchives(filePath)
@@ -110,25 +127,40 @@ func (h *Harvester) addSystem(infos system.Infos) *system.System {
 	return result
 }
 
-// processArchives processes archives for given system
-func (h *Harvester) processArchives(system *system.System, archives []string) error {
+// processSystemArchives processes archives for given system
+func (h *Harvester) processSystemArchives(system *system.System, archives []string) error {
+	workingDir := path.Join(h.Options.Tmp, system.Infos.Name)
+
+	// ensure output directory
+	outputDir := path.Join(h.Output, system.RomsDir())
+	if err := os.MkdirAll(outputDir, 0777); (err != nil) && (err != os.ErrExist) {
+		return err
+	}
+
+	// extract archives
+	if h.Options.Verbose {
+		fmt.Printf("[%s] Extracting %v archive(s)\n", system.Infos.Name, len(archives))
+	}
+
 	for _, archive := range archives {
-		baseName := helpers.FileBase(archive)
-		workingDir := path.Join(h.Options.Tmp, baseName)
-
-		if h.Options.Verbose {
-			log.Printf("Extracting archive into: %s", workingDir)
+		args := []string{"x", archive, "-o" + workingDir, "-y"}
+		if err := helpers.ExecCmd("7z", args); err != nil {
+			return err
 		}
+	}
 
-		if !h.Options.Noop {
-			// extract archive
-			args := []string{"x", archive, "-o" + workingDir}
-			if err := helpers.ExecCmd("7z", args); err != nil {
-				return err
-			}
-		}
+	// process roms
+	if err := system.SelectRoms(workingDir, outputDir); err != nil {
+		return err
+	}
 
-		// @todo Process roms
+	// delete extracted archive directory
+	if h.Options.Debug {
+		fmt.Printf("Deleting temp dir: %s\n", workingDir)
+	}
+
+	if err := os.RemoveAll(workingDir); err != nil {
+		return err
 	}
 
 	return nil

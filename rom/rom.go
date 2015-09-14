@@ -3,7 +3,7 @@ package rom
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
+	"path"
 	"regexp"
 	"strings"
 
@@ -27,6 +27,7 @@ var rPromo = regexp.MustCompile(`\(([^\(]*)Promo([^\(]*)\)`)
 
 // Rom represents a game version
 type Rom struct {
+	File     string
 	Filename string
 	Name     string
 	Regions  []string
@@ -42,15 +43,16 @@ type Rom struct {
 }
 
 // New instanciates a new Rom
-func New(filename string) *Rom {
+func New(filePath string) *Rom {
 	return &Rom{
-		Filename: filename,
+		File:     filePath,
+		Filename: path.Base(filePath),
 	}
 }
 
 // MustFill instanciates an fill a new Rom. Panics on error.
-func MustFill(filename string) *Rom {
-	r := New(filename)
+func MustFill(filePath string) *Rom {
+	r := New(filePath)
 	if err := r.Fill(); err != nil {
 		panic(err)
 	}
@@ -60,12 +62,6 @@ func MustFill(filename string) *Rom {
 // HaveAltTag returns true if rom have an alternative version tag
 func (r *Rom) HaveAltTag() bool {
 	return r.Proto || r.Beta || r.Sample || r.Demo || r.Pirate || r.Promo
-}
-
-// IsZipped returns true if this is a zipped rom
-func (r *Rom) IsZipped() bool {
-	fileExt := filepath.Ext(r.Filename)
-	return fileExt == ".zip"
 }
 
 // String returns the string representation of Rom

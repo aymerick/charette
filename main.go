@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path"
 
@@ -24,7 +23,6 @@ var (
 	fInput  string
 	fOutput string
 	fTmpDir string
-	fNoop   bool
 
 	fRegions      string
 	fLeaveMeAlone bool
@@ -54,7 +52,6 @@ func init() {
 	flag.StringVar(&fInput, "input", curDir, "Path to no-intro archives directory")
 	flag.StringVar(&fOutput, "output", path.Join(curDir, defaultOutput), "Path to output directory")
 	flag.StringVar(&fTmpDir, "tmp", path.Join(curDir, defaultTmpDir), "Path to temporary working directory")
-	flag.BoolVar(&fNoop, "noop", false, "Noop mode: do nothing, usefull for debugging")
 
 	flag.StringVar(&fRegions, "regions", defaultRegions, "Preferred regions")
 	flag.BoolVar(&fLeaveMeAlone, "leave-me-alone", false, "Skip games that are not in preferred regions")
@@ -104,10 +101,10 @@ func main() {
 	}
 
 	if fVerbose {
-		log.Printf("charette v%s", version)
-		log.Printf("   input: %s", fInput)
-		log.Printf("   output: %s", fOutput)
-		log.Printf("   tmp: %s", fTmpDir)
+		fmt.Printf("charette v%s\n", version)
+		fmt.Printf("   input: %s\n", fInput)
+		fmt.Printf("   output: %s\n", fOutput)
+		fmt.Printf("   tmp: %s\n", fTmpDir)
 	}
 
 	// computes options
@@ -126,7 +123,6 @@ func main() {
 
 	options.Verbose = fVerbose
 	options.Debug = fDebug
-	options.Noop = fNoop
 	options.Unzip = fUnzip
 	options.Tmp = fTmpDir
 

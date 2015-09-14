@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	quiet = false
+	quiet = true
 )
 
 // ExecCmd executes a command, and returns an error if command fails

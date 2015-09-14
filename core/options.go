@@ -14,7 +14,6 @@ type Options struct {
 
 	Verbose bool
 	Debug   bool
-	Noop    bool
 	Unzip   bool
 	Tmp     string
 }
