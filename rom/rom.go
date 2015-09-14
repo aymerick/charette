@@ -154,6 +154,16 @@ func (r *Rom) BestRegionIndex(regions []string) int {
 	return result
 }
 
+// BestRegion returns the best region name in given regions list for that rom
+func (r *Rom) BestRegion(regions []string) string {
+	i := r.BestRegionIndex(regions)
+	if i < len(regions) {
+		return regions[i]
+	}
+
+	return r.Regions[0]
+}
+
 func (r *Rom) extractVersion() string {
 	result := ""
 

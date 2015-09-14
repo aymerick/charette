@@ -54,30 +54,43 @@ func (h *Harvester) Run() error {
 
 	// process archives
 	for infos, archives := range systems {
-		system := h.addSystem(infos)
+		s := h.addSystem(infos)
 
-		if err := h.processSystemArchives(system, archives); err != nil {
+		if err := h.processSystemArchives(s, archives); err != nil {
 			return err
 		}
 	}
 
 	// Display stats
-	if h.Options.Verbose {
-		processed := 0
-		skipped := 0
-		games := 0
-
-		for _, system := range h.Systems {
-			processed += system.Processed
-			skipped += system.Skipped
-			games += len(system.Games)
-		}
-
-		fmt.Printf("Processed %v files (skipped: %v)\n", processed, skipped)
-		fmt.Printf("Selected %v games\n", games)
-	}
+	h.printStats()
 
 	return nil
+}
+
+func (h *Harvester) printStats() {
+	processed := 0
+	skipped := 0
+	games := 0
+	regions := map[string]int{}
+
+	for _, s := range h.Systems {
+		processed += s.Processed
+		skipped += s.Skipped
+		games += len(s.Games)
+
+		for region, nb := range s.RegionsStats {
+			regions[region] += nb
+		}
+	}
+
+	fmt.Printf("==============================================\n")
+	fmt.Printf("Processed %v files (skipped: %v)\n", processed, skipped)
+	fmt.Printf("Selected %v games\n", games)
+	fmt.Printf("Regions:\n")
+
+	for region, nb := range regions {
+		fmt.Printf("\t%s: %d\n", region, nb)
+	}
 }
 
 // scanArchives returns a map of {System Infos} => [Archives paths]
@@ -128,18 +141,18 @@ func (h *Harvester) addSystem(infos system.Infos) *system.System {
 }
 
 // processSystemArchives processes archives for given system
-func (h *Harvester) processSystemArchives(system *system.System, archives []string) error {
-	workingDir := path.Join(h.Options.Tmp, system.Infos.Name)
+func (h *Harvester) processSystemArchives(s *system.System, archives []string) error {
+	workingDir := path.Join(h.Options.Tmp, s.Infos.Name)
 
 	// ensure output directory
-	outputDir := path.Join(h.Output, system.RomsDir())
+	outputDir := path.Join(h.Output, s.RomsDir())
 	if err := os.MkdirAll(outputDir, 0777); (err != nil) && (err != os.ErrExist) {
 		return err
 	}
 
 	// extract archives
 	if h.Options.Verbose {
-		fmt.Printf("[%s] Extracting %v archive(s)\n", system.Infos.Name, len(archives))
+		fmt.Printf("[%s] Extracting %v archive(s)\n", s.Infos.Name, len(archives))
 	}
 
 	for _, archive := range archives {
@@ -150,7 +163,7 @@ func (h *Harvester) processSystemArchives(system *system.System, archives []stri
 	}
 
 	// process roms
-	if err := system.SelectRoms(workingDir, outputDir); err != nil {
+	if err := s.SelectRoms(workingDir, outputDir); err != nil {
 		return err
 	}
 

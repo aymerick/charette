@@ -22,19 +22,23 @@ type System struct {
 	// found games
 	Games map[string]*rom.Game
 
-	// Processed files number
+	// processed files number
 	Processed int
 
 	// skipped files number
 	Skipped int
+
+	// selected regions stats
+	RegionsStats map[string]int
 }
 
 // New instanciates a new System
 func New(infos Infos, options *core.Options) *System {
 	return &System{
-		Infos:   infos,
-		Options: options,
-		Games:   map[string]*rom.Game{},
+		Infos:        infos,
+		Options:      options,
+		Games:        map[string]*rom.Game{},
+		RegionsStats: map[string]int{},
 	}
 }
 
@@ -56,8 +60,9 @@ func (s *System) SelectRoms(inputDir string, outputDir string) error {
 
 	if s.Options.Verbose {
 		fmt.Printf("[%s] Processed %v files (skipped: %v)\n", s.Infos.Name, s.Processed, s.Skipped)
-		fmt.Printf("[%s] Selected %v games\n", s.Infos.Name, len(s.Games))
 	}
+
+	fmt.Printf("[%s] Selected %v games\n", s.Infos.Name, len(s.Games))
 
 	// move selected files to output directory
 	if err := s.moveSelectedRoms(outputDir); err != nil {
@@ -186,6 +191,8 @@ func (s *System) moveSelectedRoms(outputDir string) error {
 		if err := os.Rename(r.File, outputPath); err != nil {
 			return err
 		}
+
+		s.RegionsStats[r.BestRegion(s.Options.Regions)]++
 	}
 
 	return nil

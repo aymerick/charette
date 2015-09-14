@@ -38,12 +38,6 @@ If you want to keep only specified regions, set the `-leave-me-alone` flag. For 
 
     $ charette -regions=USA -leave-me-alone
 
-### Unzip
-
-If you want to output unzipped roms, use the `-unzip` flag:
-
-    $ charette -unzip
-
 ### Insane mode
 
 By default, `charette` skips all roms tagged with `Proto`, `Demo`, `Pirate`, `Beta`, `Sample`...
