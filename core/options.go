@@ -6,8 +6,8 @@ type Options struct {
 	Output string
 	Tmp    string
 
-	Regions      []string
-	LeaveMeAlone bool
+	Regions []string
+	Strict  bool
 
 	KeepProto  bool
 	KeepBeta   bool

@@ -24,10 +24,10 @@ var (
 	fOutput string
 	fTmpDir string
 
-	fRegions      string
-	fLeaveMeAlone bool
-	fInsane       bool
-	fUnzip        bool
+	fRegions string
+	fStrict  bool
+	fInsane  bool
+	fUnzip   bool
 
 	fKeepProto  bool
 	fKeepBeta   bool
@@ -54,7 +54,7 @@ func init() {
 	flag.StringVar(&fTmpDir, "tmp", path.Join(curDir, defaultTmpDir), "Path to temporary working directory")
 
 	flag.StringVar(&fRegions, "regions", defaultRegions, "Preferred regions")
-	flag.BoolVar(&fLeaveMeAlone, "leave-me-alone", false, "Skip games that are not in preferred regions")
+	flag.BoolVar(&fStrict, "strict", false, "Skip games that are not in preferred regions")
 	flag.BoolVar(&fInsane, "insane", false, "Activates flags: -keep-proto -keep-beta -keep-sample -keep-demo -keep-pirate -keep-promo")
 	flag.BoolVar(&fUnzip, "unzip", false, "Unzip roms")
 
@@ -126,7 +126,7 @@ func main() {
 
 	options.Regions = core.ExtractRegions(fRegions)
 
-	options.LeaveMeAlone = fLeaveMeAlone
+	options.Strict = fStrict
 
 	options.KeepProto = fKeepProto
 	options.KeepBeta = fKeepBeta

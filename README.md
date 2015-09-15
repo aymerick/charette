@@ -2,10 +2,6 @@
 
 Filter your [no-intro](http://www.no-intro.org) roms.
 
-**WARNING: This is a work in progress... this is NOT WORKING YET.**
-
-    ./charette -regions="France,Europe,World,USA" -leave-me-alone -input="/Users/aymerick/Downloads/no-intro/" -output="/Users/aymerick/Downloads/no-intro/roms/" -tmp="/Users/aymerick/Downloads/no-intro/.~charette/"
-
 ## Dependencies
 
 All no-into sets are archived with 7zip, so you have to install the `7z` tool.
@@ -30,15 +26,15 @@ Selected roms are then copied into a new `/roms/` sub directory in current direc
 
 Default preferred regions setting is `France,Europe,World,USA,Japan`.
 
-It means that when a game has several roms, then `charette` selects the `France` one if it exists, otherwise the `Europe` one, etc. If the game has no rom with preferred region, it is still selected with a random region rom, unless you specify the `-leave-me-alone` flag, and in that case the game is skipped.
+It means that when a game has several roms, then `charette` selects the `France` one if it exists, otherwise the `Europe` one, etc. If the game has no rom with preferred region, it is still selected with a random region rom, unless you specify the `-strict` flag, and in that case the game is skipped.
 
 You can change the `regions` setting with the `-regions` flag:
 
     $ charette -regions=USA,World,Europe,Japan
 
-If you want to keep only specified regions, set the `-leave-me-alone` flag. For example, to keep only `USA` roms:
+If you want to keep only specified regions, set the `-strict` flag. For example, to keep only `USA` roms:
 
-    $ charette -regions=USA -leave-me-alone
+    $ charette -regions=USA -strict
 
 ### Insane mode
 

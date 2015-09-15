@@ -22,6 +22,9 @@ type Archive struct {
 	// output directory path
 	Output string
 
+	// working directory path
+	WorkingDir string
+
 	// selected games
 	Games map[string]*rom.Game
 
@@ -36,46 +39,48 @@ type Archive struct {
 }
 
 // NewArchive instanciates a new Archive
-func NewArchive(s *System, path string, output string) *Archive {
-	return &Archive{
+func NewArchive(s *System, filePath string, output string) *Archive {
+	result := &Archive{
 		System:       s,
-		Path:         path,
+		Path:         filePath,
 		Output:       output,
 		Games:        map[string]*rom.Game{},
 		RegionsStats: map[string]int{},
 	}
+
+	result.WorkingDir = path.Join(s.Options.Tmp, helpers.FileBase(filePath))
+
+	return result
 }
 
 // Process filters roms in archive
 func (a *Archive) Process() error {
-	workingDir := path.Join(a.System.Options.Tmp, helpers.FileBase(a.Path))
-
-	args := []string{"x", a.Path, "-o" + workingDir, "-y"}
+	args := []string{"x", a.Path, "-o" + a.WorkingDir, "-y"}
 	if err := helpers.ExecCmd("7z", args); err != nil {
 		return err
 	}
 
 	// process roms
-	if err := a.SelectRoms(workingDir); err != nil {
+	if err := a.SelectRoms(a.WorkingDir); err != nil {
 		return err
 	}
 
 	// delete extracted archive directory
 	if a.System.Options.Debug {
-		fmt.Printf("[%s] Deleting temp dir: %s\n", a.System.Infos.Name, workingDir)
+		fmt.Printf("[%s] Deleting temp dir: %s\n", a.System.Infos.Name, a.WorkingDir)
 	}
 
-	if err := os.RemoveAll(workingDir); err != nil {
+	if err := os.RemoveAll(a.WorkingDir); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// SelectRoms filters all roms found in input directory and copy selected ones to output directory
+// SelectRoms filters all roms found in working directory and copy selected ones to output directory
 func (a *Archive) SelectRoms(inputDir string) error {
 	// process input files
-	if err := a.processDir(inputDir); err != nil {
+	if err := a.processDir(a.WorkingDir); err != nil {
 		return err
 	}
 
@@ -87,6 +92,7 @@ func (a *Archive) SelectRoms(inputDir string) error {
 	return nil
 }
 
+// processDir processes files in given directory
 func (a *Archive) processDir(inputDir string) error {
 	files, err := ioutil.ReadDir(inputDir)
 	if err != nil {
@@ -114,6 +120,7 @@ func (a *Archive) processDir(inputDir string) error {
 	return nil
 }
 
+// processDir processes file at given path
 func (a *Archive) processFile(inputDir string, file os.FileInfo) error {
 	// check file type
 	fileExt := filepath.Ext(file.Name())
@@ -150,8 +157,8 @@ func (a *Archive) processFile(inputDir string, file os.FileInfo) error {
 
 // skip returns true if given rom must be skiped, with an explanation message
 func (a *Archive) skip(r *rom.Rom) (bool, string) {
-	if a.System.Options.LeaveMeAlone && !r.HaveRegion(a.System.Options.Regions) {
-		return true, fmt.Sprintf("Leave me alone: %v\n", r.Regions)
+	if a.System.Options.Strict && !r.HaveRegion(a.System.Options.Regions) {
+		return true, fmt.Sprintf("Strict: %v", r.Regions)
 	}
 
 	if r.Proto && !a.System.Options.KeepProto {
@@ -198,7 +205,7 @@ func (a *Archive) moveSelectedRoms() error {
 		outputPath := path.Join(a.Output, r.Filename)
 
 		if a.System.Options.Debug {
-			fmt.Printf("MOVING: %s => %s\n", r.File, outputPath)
+			fmt.Printf("[%s] MOVING: %s => %s\n", a.System.Infos.Name, r.File, outputPath)
 		}
 
 		if err := os.Rename(r.File, outputPath); err != nil {
