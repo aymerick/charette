@@ -92,13 +92,19 @@ func main() {
 		fInput = curDir()
 	}
 
+	fInput = path.Clean(fInput)
+
 	if fOutput == "" {
 		fOutput = path.Join(curDir(), defaultOutput)
 	}
 
+	fOutput = path.Clean(fOutput)
+
 	if fTmpDir == "" {
 		fTmpDir = path.Join(curDir(), defaultTmpDir)
 	}
+
+	fTmpDir = path.Clean(fTmpDir)
 
 	if fVerbose {
 		fmt.Printf("charette v%s\n", version)
@@ -107,8 +113,16 @@ func main() {
 		fmt.Printf("   tmp: %s\n", fTmpDir)
 	}
 
+	if (fInput == fOutput) || (fInput == fTmpDir) {
+		panic("Output and tmp directories can't be the same as input directory")
+	}
+
 	// computes options
 	options := core.NewOptions()
+
+	options.Input = fInput
+	options.Output = fOutput
+	options.Tmp = fTmpDir
 
 	options.Regions = core.ExtractRegions(fRegions)
 
@@ -124,10 +138,9 @@ func main() {
 	options.Verbose = fVerbose
 	options.Debug = fDebug
 	options.Unzip = fUnzip
-	options.Tmp = fTmpDir
 
 	// run harvester
-	h := harvester.New(fInput, fOutput, fTmpDir, options)
+	h := harvester.New(options)
 	if err := h.Run(); err != nil {
 		panic(err)
 	}

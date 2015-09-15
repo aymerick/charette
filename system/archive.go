@@ -95,8 +95,6 @@ func (a *Archive) processDir(inputDir string) error {
 
 	for _, file := range files {
 		if file.IsDir() {
-			// @todo Ignore /roms and /.~charette directories !
-
 			subdir := path.Join(inputDir, file.Name())
 
 			// process subdirectory

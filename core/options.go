@@ -2,6 +2,10 @@ package core
 
 // Options holds the settings for Harvester
 type Options struct {
+	Input  string
+	Output string
+	Tmp    string
+
 	Regions      []string
 	LeaveMeAlone bool
 
@@ -15,7 +19,6 @@ type Options struct {
 	Verbose bool
 	Debug   bool
 	Unzip   bool
-	Tmp     string
 }
 
 // NewOptions instanciates a new Options

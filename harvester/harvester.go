@@ -12,15 +12,6 @@ import (
 
 // Harvester collects wanted roms from given directory
 type Harvester struct {
-	// input directory
-	Input string
-
-	// output directory
-	Output string
-
-	// temporary working directory
-	Tmp string
-
 	// options
 	Options *core.Options
 
@@ -29,11 +20,8 @@ type Harvester struct {
 }
 
 // New instanciates a new Harvester
-func New(input string, output string, tmp string, options *core.Options) *Harvester {
+func New(options *core.Options) *Harvester {
 	return &Harvester{
-		Input:   input,
-		Output:  output,
-		Tmp:     tmp,
 		Options: options,
 	}
 }
@@ -41,11 +29,11 @@ func New(input string, output string, tmp string, options *core.Options) *Harves
 // Run detects systems archives in input directory and processes them
 func (h *Harvester) Run() error {
 	if h.Options.Verbose {
-		fmt.Printf("Scaning input dir: %s\n", h.Input)
+		fmt.Printf("Scaning input dir: %s\n", h.Options.Input)
 	}
 
 	// detect all no-intro archives
-	systems, err := h.scanArchives(h.Input)
+	systems, err := h.scanArchives(h.Options.Input)
 	if err != nil {
 		return err
 	}
@@ -102,22 +90,27 @@ func (h *Harvester) scanArchives(input string) (map[system.Infos][]string, error
 	}
 
 	for _, file := range files {
-		filePath := path.Join(input, file.Name())
+		filePath := path.Clean(path.Join(input, file.Name()))
 
 		if file.IsDir() {
-			if h.Options.Verbose {
-				fmt.Printf("Scaning subdir: %s\n", filePath)
-			}
+			// ignore /roms and /.~charette directories
+			if (filePath != path.Clean(h.Options.Output)) && (filePath != path.Clean(h.Options.Tmp)) {
+				// scan subdir
+				if h.Options.Verbose {
+					fmt.Printf("Scaning subdir: %s\n", filePath)
+				}
 
-			subArchives, err := h.scanArchives(filePath)
-			if err != nil {
-				return result, nil
-			}
+				subArchives, err := h.scanArchives(filePath)
+				if err != nil {
+					return result, nil
+				}
 
-			for infos, archives := range subArchives {
-				result[infos] = append(result[infos], archives...)
+				for infos, archives := range subArchives {
+					result[infos] = append(result[infos], archives...)
+				}
 			}
 		} else {
+			// scan archive
 			fileExt := filepath.Ext(filePath)
 			if fileExt == ".7z" {
 				if infos, found := system.InfosForArchive(filePath); found {
@@ -147,7 +140,7 @@ func (h *Harvester) processSystemArchives(s *system.System, archives []string) e
 	}
 
 	for _, archive := range archives {
-		if err := s.ProcessArchive(archive, h.Output); err != nil {
+		if err := s.ProcessArchive(archive, h.Options.Output); err != nil {
 			return err
 		}
 	}
