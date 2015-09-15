@@ -3,6 +3,7 @@ package harvester
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 
@@ -80,17 +81,38 @@ func (h *Harvester) printStats() {
 }
 
 // scanArchives returns a map of {System Infos} => [Archives paths]
-// @todo input can be a simple file !
 func (h *Harvester) scanArchives(input string) (map[system.Infos][]string, error) {
 	result := make(map[system.Infos][]string)
 
-	files, err := ioutil.ReadDir(input)
+	fileInfo, err := os.Stat(input)
+	if err != nil {
+		return result, err
+	}
+
+	if fileInfo.IsDir() {
+		// scan archives directory
+		return h.scanArchivesDir(input)
+	}
+
+	// scan archive file
+	infos, found := h.scanArchiveFile(input)
+	if found {
+		result[infos] = []string{input}
+	}
+
+	return result, nil
+}
+
+func (h *Harvester) scanArchivesDir(dirPath string) (map[system.Infos][]string, error) {
+	result := make(map[system.Infos][]string)
+
+	files, err := ioutil.ReadDir(dirPath)
 	if err != nil {
 		return result, err
 	}
 
 	for _, file := range files {
-		filePath := path.Clean(path.Join(input, file.Name()))
+		filePath := path.Clean(path.Join(dirPath, file.Name()))
 
 		if file.IsDir() {
 			// ignore /roms and /.~charette directories
@@ -100,7 +122,7 @@ func (h *Harvester) scanArchives(input string) (map[system.Infos][]string, error
 					fmt.Printf("Scaning subdir: %s\n", filePath)
 				}
 
-				subArchives, err := h.scanArchives(filePath)
+				subArchives, err := h.scanArchivesDir(filePath)
 				if err != nil {
 					return result, nil
 				}
@@ -110,17 +132,26 @@ func (h *Harvester) scanArchives(input string) (map[system.Infos][]string, error
 				}
 			}
 		} else {
-			// scan archive
-			fileExt := filepath.Ext(filePath)
-			if fileExt == ".7z" {
-				if infos, found := system.InfosForArchive(filePath); found {
-					result[infos] = append(result[infos], filePath)
-				}
+			if infos, found := h.scanArchiveFile(filePath); found {
+				result[infos] = append(result[infos], filePath)
 			}
 		}
 	}
 
 	return result, nil
+}
+
+func (h *Harvester) scanArchiveFile(filePath string) (system.Infos, bool) {
+	var result system.Infos
+	found := false
+
+	// scan archive
+	fileExt := filepath.Ext(filePath)
+	if fileExt == ".7z" {
+		result, found = system.InfosForArchive(filePath)
+	}
+
+	return result, found
 }
 
 // addSystem registers a new system
