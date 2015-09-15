@@ -49,7 +49,7 @@ func init() {
 	}
 
 	// flags
-	flag.StringVar(&fInput, "input", curDir, "Path to no-intro archives directory")
+	flag.StringVar(&fInput, "input", curDir, "Path to no-intro archives directory, or path to a single no-intro archive file")
 	flag.StringVar(&fOutput, "output", path.Join(curDir, defaultOutput), "Path to output directory")
 	flag.StringVar(&fTmpDir, "tmp", path.Join(curDir, defaultTmpDir), "Path to temporary working directory")
 

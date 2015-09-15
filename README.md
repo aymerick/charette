@@ -4,6 +4,8 @@ Filter your [no-intro](http://www.no-intro.org) roms.
 
 **WARNING: This is a work in progress... this is NOT WORKING YET.**
 
+    ./charette -regions="France,Europe,World,USA" -leave-me-alone -input="/Users/aymerick/Downloads/no-intro/" -output="/Users/aymerick/Downloads/no-intro/roms/" -tmp="/Users/aymerick/Downloads/no-intro/.~charette/"
+
 ## Dependencies
 
 All no-into sets are archived with 7zip, so you have to install the `7z` tool.

@@ -3,12 +3,10 @@ package harvester
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path"
 	"path/filepath"
 
 	"github.com/aymerick/charette/core"
-	"github.com/aymerick/charette/helpers"
 	"github.com/aymerick/charette/system"
 )
 
@@ -94,16 +92,17 @@ func (h *Harvester) printStats() {
 }
 
 // scanArchives returns a map of {System Infos} => [Archives paths]
-func (h *Harvester) scanArchives(dir string) (map[system.Infos][]string, error) {
+// @todo input can be a simple file !
+func (h *Harvester) scanArchives(input string) (map[system.Infos][]string, error) {
 	result := make(map[system.Infos][]string)
 
-	files, err := ioutil.ReadDir(dir)
+	files, err := ioutil.ReadDir(input)
 	if err != nil {
 		return result, err
 	}
 
 	for _, file := range files {
-		filePath := path.Join(dir, file.Name())
+		filePath := path.Join(input, file.Name())
 
 		if file.IsDir() {
 			if h.Options.Verbose {
@@ -142,39 +141,22 @@ func (h *Harvester) addSystem(infos system.Infos) *system.System {
 
 // processSystemArchives processes archives for given system
 func (h *Harvester) processSystemArchives(s *system.System, archives []string) error {
-	workingDir := path.Join(h.Options.Tmp, s.Infos.Name)
-
-	// ensure output directory
-	outputDir := path.Join(h.Output, s.RomsDir())
-	if err := os.MkdirAll(outputDir, 0777); (err != nil) && (err != os.ErrExist) {
-		return err
-	}
-
 	// extract archives
-	if h.Options.Verbose {
+	if s.Options.Verbose {
 		fmt.Printf("[%s] Extracting %v archive(s)\n", s.Infos.Name, len(archives))
 	}
 
 	for _, archive := range archives {
-		args := []string{"x", archive, "-o" + workingDir, "-y"}
-		if err := helpers.ExecCmd("7z", args); err != nil {
+		if err := s.ProcessArchive(archive, h.Output); err != nil {
 			return err
 		}
 	}
 
-	// process roms
-	if err := s.SelectRoms(workingDir, outputDir); err != nil {
-		return err
+	if s.Options.Verbose {
+		fmt.Printf("[%s] Processed %v files (skipped: %v)\n", s.Infos.Name, s.Processed, s.Skipped)
 	}
 
-	// delete extracted archive directory
-	if h.Options.Debug {
-		fmt.Printf("Deleting temp dir: %s\n", workingDir)
-	}
-
-	if err := os.RemoveAll(workingDir); err != nil {
-		return err
-	}
+	fmt.Printf("[%s] Selected %v games\n", s.Infos.Name, len(s.Games))
 
 	return nil
 }
