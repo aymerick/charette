@@ -2,7 +2,6 @@ package rom
 
 import (
 	"fmt"
-	"log"
 	"testing"
 )
 
@@ -52,10 +51,6 @@ func TestGameRomsSort(t *testing.T) {
 
 	expected := []*Rom{r5, r3, r4, r2, r6, r8, r1, r7}
 
-	for _, rom := range g.Roms {
-		log.Printf("    %v", rom)
-	}
-
 	for i, rom := range g.Roms {
 		if rom != expected[i] {
 			t.Fatal(fmt.Sprintf("Game roms sort failed\n\tgot     : %v\n\texpected: %v", g.Roms, expected))
@@ -76,10 +71,6 @@ func TestGameRomsSort2(t *testing.T) {
 	g.SortRoms(regions)
 
 	expected := []*Rom{r1, r5, r4, r3, r2}
-
-	for _, rom := range g.Roms {
-		log.Printf("    %v", rom)
-	}
 
 	for i, rom := range g.Roms {
 		if rom != expected[i] {
