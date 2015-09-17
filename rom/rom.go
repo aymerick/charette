@@ -106,33 +106,41 @@ func (r *Rom) String() string {
 	return result
 }
 
-// Fill extracts Rom infos from filename
-func (r *Rom) Fill() error {
+// NameAndRegions returns rom name and rom regions computed from rom file name
+func NameAndRegions(fileName string) (string, []string) {
+	name := ""
+	regions := []string{}
+
 	// extract all tags
-	tags := rTags.FindAllStringIndex(r.Filename, -1)
+	tags := rTags.FindAllStringIndex(fileName, -1)
 
 	// find regions tag
 	regionsIndex := -1
 
 	for _, tag := range tags {
 		// check tag (don't forget to remove parenthesis)
-		r.Regions = core.ExtractRegions(r.Filename[tag[0]+1 : tag[1]-1])
-		if len(r.Regions) > 0 {
+		regions = core.ExtractRegions(fileName[tag[0]+1 : tag[1]-1])
+		if len(regions) > 0 {
 			regionsIndex = tag[0]
 			break
 		}
 	}
 
 	if regionsIndex < 0 {
-		fmt.Printf("[ERROR] Rom without region: %s", r.Filename)
+		fmt.Printf("[ERROR] Rom without region: %s", fileName)
 		// should not happen
-		r.Name = r.Filename
+		name = fileName
 	} else {
 		// everything before region tag is the rom name
-		r.Name = r.Filename[0 : regionsIndex-1]
+		name = fileName[0 : regionsIndex-1]
 	}
 
-	r.Name = strings.TrimSpace(r.Name)
+	return strings.TrimSpace(name), regions
+}
+
+// Fill extracts Rom infos from filename
+func (r *Rom) Fill() error {
+	r.Name, r.Regions = NameAndRegions(r.Filename)
 
 	r.Version = r.extractVersion()
 

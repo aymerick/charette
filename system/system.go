@@ -53,7 +53,7 @@ func (s *System) ProcessArchive(archive string, outputDir string) error {
 	}
 
 	// process archive
-	a := NewArchive(s, archive, outputDir)
+	a := NewArchive(s, archive, outputDir, s.Options)
 	if err := a.Process(); err != nil {
 		return err
 	}

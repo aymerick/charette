@@ -7,7 +7,7 @@ type Game struct {
 	Name string
 	Roms []*Rom
 
-	sorted bool
+	Moved bool
 }
 
 // NewGame instanciates a new Game
@@ -31,33 +31,20 @@ func (g *Game) AddRom(r *Rom) *Rom {
 	return r
 }
 
-// SortRoms sorts roms
-func (g *Game) SortRoms(regions []string) {
+// sortRoms sorts roms given preferred regions
+func (g *Game) sortRoms(regions []string) {
 	sort.Sort(g.NewRomsSort(regions))
-
-	g.sorted = true
 }
 
-// BestRom returns the best rom matching the given criteria
-func (g *Game) BestRom() *Rom {
-	if !g.sorted {
-		panic("Roms must be sorted")
+// BestRom returns the best rom given preferred regions, or nil if no rom matches
+func (g *Game) BestRom(regions []string) *Rom {
+	g.sortRoms(regions)
+
+	if len(g.Roms) > 0 {
+		return g.Roms[0]
 	}
 
-	return g.Roms[0]
-}
-
-// GarbageRoms returns roms that can be discarded
-func (g *Game) GarbageRoms() []*Rom {
-	if !g.sorted {
-		panic("Roms must be sorted")
-	}
-
-	if len(g.Roms) > 1 {
-		return g.Roms[1:len(g.Roms)]
-	}
-
-	return []*Rom{}
+	return nil
 }
 
 //
