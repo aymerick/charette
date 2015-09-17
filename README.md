@@ -4,7 +4,7 @@ Filter your [no-intro](http://www.no-intro.org) roms.
 
 ## Dependencies
 
-All no-into sets are archived with 7zip, so you have to install the `7z` tool.
+**All no-into sets are archived with 7zip, so you have to install the `7z` tool first.**
 
 On mac you can install it with [homebrew](http://brew.sh):
 
@@ -48,10 +48,15 @@ If you want to keep all those roms, then use the `-insane` flag:
 
 Once `charette` ended, you can scrap roms images thanks to [scraper](https://github.com/sselph/scraper).
 
-Launch `scraper` on the output:
+Launch `scraper` in a rom dictory:
+
+    $ cd /PATH/TO/ROMS/snes/
+    $ scraper -max_width=375 -no_thumb=true
+
+Or, for all directories:
 
     $ cd /PATH/TO/ROMS/
-    $ scraper -max_width=375 -no_thumb=true
+    $ find . -maxdepth 1 -mindepth 1 -type d -exec bash -c 'cd "$0" && scraper -max_width=375 -no_thumb=true' {} \;
 
 Adds `-append` flag when updating a rom directory.
 
