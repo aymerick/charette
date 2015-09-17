@@ -7,6 +7,8 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/cheggaaa/pb"
+
 	"github.com/aymerick/charette/core"
 	"github.com/aymerick/charette/system"
 )
@@ -70,7 +72,7 @@ func (h *Harvester) printStats() {
 		}
 	}
 
-	fmt.Printf("==============================================\n")
+	fmt.Printf("=============== TOTAL ===============\n")
 	fmt.Printf("Processed %v files (skipped: %v)\n", processed, skipped)
 	fmt.Printf("Selected %v games\n", games)
 	fmt.Printf("Regions:\n")
@@ -118,7 +120,7 @@ func (h *Harvester) scanArchivesDir(dirPath string) (map[system.Infos][]string, 
 			// ignore /roms and /.~charette directories
 			if (filePath != path.Clean(h.Options.Output)) && (filePath != path.Clean(h.Options.Tmp)) {
 				// scan subdir
-				if !h.Options.Quiet {
+				if h.Options.Debug {
 					fmt.Printf("Scaning subdir: %s\n", filePath)
 				}
 
@@ -165,18 +167,35 @@ func (h *Harvester) addSystem(infos system.Infos) *system.System {
 
 // processSystemArchives processes archives for given system
 func (h *Harvester) processSystemArchives(s *system.System, archives []string) error {
+	var bar *pb.ProgressBar
+
+	nb := len(archives)
+
 	// extract archives
 	if !s.Options.Quiet {
-		fmt.Printf("[%s] Extracting %v archive(s)\n", s.Infos.Name, len(archives))
+		fmt.Printf("[%s] Extracting %v archive(s)\n", s.Infos.Name, nb)
+
+		if !s.Options.Debug {
+			bar = pb.StartNew(nb)
+			bar.ShowCounters = true
+			bar.ShowPercent = false
+			bar.ShowTimeLeft = true
+			bar.SetMaxWidth(80)
+		}
 	}
 
 	for _, archive := range archives {
+		if !s.Options.Quiet && !s.Options.Debug {
+			bar.Increment()
+		}
+
 		if err := s.ProcessArchive(archive, h.Options.Output); err != nil {
 			return err
 		}
 	}
 
-	if !s.Options.Quiet {
+	if !s.Options.Quiet && !s.Options.Debug {
+		bar.Finish()
 		fmt.Printf("[%s] Processed %v files (skipped: %v)\n", s.Infos.Name, s.Processed, s.Skipped)
 	}
 
