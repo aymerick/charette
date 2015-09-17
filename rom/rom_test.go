@@ -114,6 +114,13 @@ var fillTests = []struct {
 		"",
 		false, false, false, false, false, true, false,
 	},
+	{
+		"Chuugaku Hisshuu Eibunpou (Chuugaku 1-Nen) (Japan) (SC-3000).zip",
+		"Chuugaku Hisshuu Eibunpou (Chuugaku 1-Nen)",
+		[]string{"Japan"},
+		"",
+		false, false, false, false, false, false, false,
+	},
 }
 
 // @todo

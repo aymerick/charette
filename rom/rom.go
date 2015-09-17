@@ -1,7 +1,6 @@
 package rom
 
 import (
-	"errors"
 	"fmt"
 	"path"
 	"regexp"
@@ -15,7 +14,7 @@ const (
 )
 
 // regexps
-var rFilename = regexp.MustCompile(`^([^\(]*)\(([^\(]*)\)`)
+var rTags = regexp.MustCompile(`(\([^\(]*\))`)
 var rVersion = regexp.MustCompile(`\(Rev(.*)\)|\(v\d.*\)`)
 
 var rProto = regexp.MustCompile(`\(Proto\)`)
@@ -109,14 +108,32 @@ func (r *Rom) String() string {
 
 // Fill extracts Rom infos from filename
 func (r *Rom) Fill() error {
-	// extract infos from filename
-	match := rFilename.FindStringSubmatch(r.Filename)
-	if len(match) != 3 {
-		return errors.New("Invalid filename: " + r.Filename)
+	// extract all tags
+	tags := rTags.FindAllStringIndex(r.Filename, -1)
+
+	// find regions tag
+	regionsIndex := -1
+
+	for _, tag := range tags {
+		// check tag (don't forget to remove parenthesis)
+		r.Regions = core.ExtractRegions(r.Filename[tag[0]+1 : tag[1]-1])
+		if len(r.Regions) > 0 {
+			regionsIndex = tag[0]
+			break
+		}
 	}
 
-	r.Name = strings.TrimSpace(match[1])
-	r.Regions = core.ExtractRegions(match[2])
+	if regionsIndex < 0 {
+		fmt.Printf("[ERROR] Rom without region: %s", r.Filename)
+		// should not happen
+		r.Name = r.Filename
+	} else {
+		// everything before region tag is the rom name
+		r.Name = r.Filename[0 : regionsIndex-1]
+	}
+
+	r.Name = strings.TrimSpace(r.Name)
+
 	r.Version = r.extractVersion()
 
 	r.Proto = rProto.MatchString(r.Filename)
