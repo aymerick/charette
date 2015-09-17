@@ -16,9 +16,9 @@ type Options struct {
 	KeepPirate bool
 	KeepPromo  bool
 
-	Verbose bool
-	Debug   bool
-	Unzip   bool
+	Quiet bool
+	Debug bool
+	Unzip bool
 }
 
 // NewOptions instanciates a new Options

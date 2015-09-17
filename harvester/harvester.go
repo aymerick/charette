@@ -29,7 +29,7 @@ func New(options *core.Options) *Harvester {
 
 // Run detects systems archives in input directory and processes them
 func (h *Harvester) Run() error {
-	if h.Options.Verbose {
+	if h.Options.Debug {
 		fmt.Printf("Scaning input dir: %s\n", h.Options.Input)
 	}
 
@@ -118,7 +118,7 @@ func (h *Harvester) scanArchivesDir(dirPath string) (map[system.Infos][]string, 
 			// ignore /roms and /.~charette directories
 			if (filePath != path.Clean(h.Options.Output)) && (filePath != path.Clean(h.Options.Tmp)) {
 				// scan subdir
-				if h.Options.Verbose {
+				if !h.Options.Quiet {
 					fmt.Printf("Scaning subdir: %s\n", filePath)
 				}
 
@@ -166,7 +166,7 @@ func (h *Harvester) addSystem(infos system.Infos) *system.System {
 // processSystemArchives processes archives for given system
 func (h *Harvester) processSystemArchives(s *system.System, archives []string) error {
 	// extract archives
-	if s.Options.Verbose {
+	if !s.Options.Quiet {
 		fmt.Printf("[%s] Extracting %v archive(s)\n", s.Infos.Name, len(archives))
 	}
 
@@ -176,7 +176,7 @@ func (h *Harvester) processSystemArchives(s *system.System, archives []string) e
 		}
 	}
 
-	if s.Options.Verbose {
+	if !s.Options.Quiet {
 		fmt.Printf("[%s] Processed %v files (skipped: %v)\n", s.Infos.Name, s.Processed, s.Skipped)
 	}
 

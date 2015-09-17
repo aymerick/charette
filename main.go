@@ -36,7 +36,7 @@ var (
 	fKeepPirate bool
 	fKeepPromo  bool
 
-	fVerbose bool
+	fQuiet   bool
 	fDebug   bool
 	fVersion bool
 )
@@ -65,8 +65,8 @@ func init() {
 	flag.BoolVar(&fKeepPirate, "keep-pirate", false, "Keep roms tagged with 'Pirate'")
 	flag.BoolVar(&fKeepPromo, "keep-promo", false, "Keep roms tagged with 'Promo'")
 
-	flag.BoolVar(&fVerbose, "verbose", false, "Activate verbose output")
-	flag.BoolVar(&fDebug, "debug", false, "Activate debug logs")
+	flag.BoolVar(&fQuiet, "quiet", false, "Activate quiet output")
+	flag.BoolVar(&fDebug, "debug", false, "Activate debug output")
 	flag.BoolVar(&fVersion, "version", false, "Display charette version")
 }
 
@@ -106,11 +106,15 @@ func main() {
 
 	fTmpDir = path.Clean(fTmpDir)
 
-	if fVerbose {
+	if fDebug {
+		fQuiet = false
+	}
+
+	if !fQuiet {
 		fmt.Printf("charette v%s\n", version)
 		fmt.Printf("   input: %s\n", fInput)
 		fmt.Printf("   output: %s\n", fOutput)
-		fmt.Printf("   tmp: %s\n", fTmpDir)
+		fmt.Printf("   tmp dir: %s\n", fTmpDir)
 	}
 
 	if (fInput == fOutput) || (fInput == fTmpDir) {
@@ -135,7 +139,7 @@ func main() {
 	options.KeepPirate = fKeepPirate
 	options.KeepPromo = fKeepPromo
 
-	options.Verbose = fVerbose
+	options.Quiet = fQuiet
 	options.Debug = fDebug
 	options.Unzip = fUnzip
 
